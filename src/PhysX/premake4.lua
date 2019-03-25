@@ -8,9 +8,10 @@
 	defines {
 	"PX_PHYSX_STATIC_LIB",
 	"PX_COOKING",
-	"PX_FOUNDATION_DLL=0"
+	"PX_FOUNDATION_DLL=0",
+	"PX_PROFILE",
 	}
-    
+	
 	configuration {"x64", "debug"}			
 			defines {"_DEBUG"}
 	configuration {"x86", "debug"}

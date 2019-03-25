@@ -61,6 +61,8 @@ CXX_FLAGS += '-DPX_FOUNDATION_DLL=0 '
 CXX_FLAGS += '-DPX_COOKING '
 CXX_FLAGS += '-DNDEBUG '
 CXX_FLAGS += '-DDISABLE_CUDA_PHYSX '
+CXX_FLAGS += '-DPX_PROFILE '
+
 
 
 
@@ -571,8 +573,6 @@ elif _platform == "win32":
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/glad/gl.c"]
     sources = sources +["src/PhysX/physx/source/physx/src/windows/NpWindowsDelayLoadHook.cpp"]\
-    +["src/PhysX/physx/source/common/src/windows/CmWindowsDelayLoadHook.cpp"]\
-    +["PhysX/physx/source/common/src/windows/CmWindowsModuleUpdateLoader.cpp"]\
     +["src/PhysXFoundationWindows.cpp"]\
     +["src/PhysX/physx/source/physx/src/device/windows/PhysXIndicatorWindows.cpp"]
 elif _platform == "darwin":

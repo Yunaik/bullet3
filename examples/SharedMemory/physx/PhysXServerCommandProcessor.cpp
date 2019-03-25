@@ -811,10 +811,11 @@ bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct Sh
 							{
 								forceLimit = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex];
 							}
-							bool isAcceleration = false;
-
+							
+							//physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eFORCE;
+							physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eACCELERATION;
 							joint->setDriveTarget(physx::PxArticulationAxis::eTWIST, desiredPosition);
-							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit, isAcceleration);
+							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit,driveType);
 						}
 					}
 
