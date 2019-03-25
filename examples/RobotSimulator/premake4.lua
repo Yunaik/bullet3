@@ -297,3 +297,116 @@ if not _OPTIONS["no-enet"] then
 		}
 
 
+
+project ("App_HelloPhysXRobotics")
+
+	language "C++"
+	kind "ConsoleApp"
+
+	links{"OpenGL_Window", "BulletRobotics","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	
+  includedirs {
+                ".",
+                "../../src",
+								"../../examples",
+                "../../examples/SharedMemory",
+                "../ThirdPartyLibs",
+                }
+
+	initOpenGL()
+	initGlew()
+	
+if not _OPTIONS["no-enet"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
+	
+		if os.is("Windows") then 
+			defines { "WIN32" }
+			links {"Ws2_32","Winmm"}
+		end
+		if os.is("Linux") then
+		end
+		if os.is("MacOSX") then
+		end		
+		links {"enet"}		
+		defines {"BT_ENABLE_ENET"}
+	end
+
+	if not _OPTIONS["no-clsocket"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/clsocket/src"}
+
+		if os.is("Windows") then
+    		defines { "WIN32" }
+        links {"Ws2_32","Winmm"}
+    end
+    if os.is("Linux") then
+    	defines {"_LINUX"}
+    end
+		if os.is("MacOSX") then
+    	defines {"_DARWIN"}
+		end
+
+		links {"clsocket"}
+    defines {"BT_ENABLE_CLSOCKET"}
+	end
+
+	if os.is("MacOSX") then
+		links{"Cocoa.framework"}
+	end
+
+	
+	if os.is("Linux") then initX11()
+                     links {"pthread"}
+        end
+
+	
+		files {
+			 "HelloPhysXRobotics.cpp"
+		}
+
+	if _OPTIONS["enable_physx"] then
+  	defines {"BT_ENABLE_PHYSX","PX_PHYSX_STATIC_LIB", "PX_FOUNDATION_DLL=0", "PX_PROFILE"}
+		
+		configuration {"x64", "debug"}			
+				defines {"_DEBUG"}
+		configuration {"x86", "debug"}
+				defines {"_DEBUG"}
+		configuration {"x64", "release"}
+				defines {"NDEBUG"}
+		configuration {"x86", "release"}
+				defines {"NDEBUG"}
+		configuration{}
+
+		includedirs {
+                ".",
+                "../../src/PhysX/physx/include",
+						    "../../src/PhysX/physx/include/characterkinematic",
+						    "../../src/PhysX/physx/include/common",
+						    "../../src/PhysX/physx/include/cooking",
+						    "../../src/PhysX/physx/include/extensions",
+						    "../../src/PhysX/physx/include/geometry",
+						    "../../src/PhysX/physx/include/geomutils",
+						    "../../src/PhysX/physx/include/vehicle",
+						    "../../src/PhysX/pxshared/include",
+                }
+		links {
+				"PhysX",
+			}
+			
+			files {
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.cpp",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererPlugin.h",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.cpp",
+				"../../examples/SharedMemory/plugins/eglPlugin/eglRendererVisualShapeConverter.h",
+				"../../examples/SharedMemory/physx/PhysXC_API.cpp",
+				"../../examples/SharedMemory/physx/PhysXServerCommandProcessor.cpp",
+				"../../examples/SharedMemory/physx/PhysXUrdfImporter.cpp",
+				"../../examples/SharedMemory/physx/URDF2PhysX.cpp",
+				"../../examples/SharedMemory/physx/PhysXC_API.h",
+				"../../examples/SharedMemory/physx/PhysXServerCommandProcessor.h",
+				"../../examples/SharedMemory/physx/PhysXUrdfImporter.h",
+				"../../examples/SharedMemory/physx/URDF2PhysX.h",
+				"../../examples/SharedMemory/physx/PhysXUserData.h",
+				}
+  end
