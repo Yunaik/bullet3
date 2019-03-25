@@ -143,6 +143,10 @@ else:
 	  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
++["src/PhysXExtensionAll.cpp"]\
++["src/PhysX/physx/source/physxextensions/src/ExtDefaultCpuDispatcher.cpp"]\
++["src/PhysX/physx/source/lowlevel/common/src/pipeline/PxcContactMethodImpl.cpp"]\
++["src/PhysX/physx/source/lowlevel/common/src/collision/PxcContact.cpp"]\
 +["examples/SharedMemory/physx/PhysXC_API.cpp"]\
 +["examples/SharedMemory/physx/PhysXServerCommandProcessor.cpp"]\
 +["examples/SharedMemory/physx/PhysXUrdfImporter.cpp"]\
@@ -234,7 +238,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/PhysXCharacterAll.cpp"]\
 +["src/PhysXCommonAll.cpp"]\
 +["src/PhysXCookingAll.cpp"]\
-+["src/PhysXExtensionAll.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/ExtDefaultErrorCallback.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/serialization/SnSerialization.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/serialization/Binary/SnConvX.cpp"]\
@@ -256,7 +259,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/PhysX/physx/source/lowleveldynamics/src/DyTGSContactPrep.cpp"]\
 +["src/PhysX/physx/source/lowleveldynamics/src/DyTGSContactPrepBlock.cpp"]\
 +["src/PhysX/physx/source/lowleveldynamics/src/DyTGSDynamics.cpp"]\
-+["src/PhysX/physx/source/lowleveldynamics/src/DyTGSPartition.cpp"]\
 +["src/PhysX/physx/source/lowlevelaabb/src/BpAABBManager.cpp"]\
 +["src/PhysX/physx/source/lowlevelaabb/src/BpBroadPhase.cpp"]\
 +["src/PhysX/physx/source/lowlevelaabb/src/BpBroadPhaseABP.cpp"]\

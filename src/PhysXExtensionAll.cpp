@@ -5,7 +5,6 @@
 #include "PhysX/physx/source/physxextensions/src/ExtCpuWorkerThread.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtD6Joint.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtD6JointCreate.cpp"
-#include "PhysX/physx/source/physxextensions/src/ExtDefaultCpuDispatcher.cpp"
 
 #include "PhysX/physx/source/physxextensions/src/ExtDefaultSimulationFilterShader.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtDefaultStreams.cpp"
@@ -13,6 +12,7 @@
 #include "PhysX/physx/source/physxextensions/src/ExtExtensions.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtFixedJoint.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtJoint.cpp"
+
 #include "PhysX/physx/source/physxextensions/src/ExtMetaData.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtPrismaticJoint.cpp"
 #include "PhysX/physx/source/physxextensions/src/ExtPvd.cpp"

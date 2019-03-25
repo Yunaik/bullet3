@@ -1,7 +1,5 @@
 #include "PhysX/physx/source/lowlevel/api/src/px_globals.cpp"
-#include "PhysX/physx/source/lowlevel/common/src/collision/PxcContact.cpp"
 #include "PhysX/physx/source/lowlevel/common/src/pipeline/PxcContactCache.cpp"
-#include "PhysX/physx/source/lowlevel/common/src/pipeline/PxcContactMethodImpl.cpp"
 #include "PhysX/physx/source/lowlevel/common/src/pipeline/PxcMaterialHeightField.cpp"
 #include "PhysX/physx/source/lowlevel/common/src/pipeline/PxcMaterialMesh.cpp"
 #include "PhysX/physx/source/lowlevel/common/src/pipeline/PxcMaterialMethodImpl.cpp"
