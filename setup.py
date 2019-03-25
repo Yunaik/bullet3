@@ -143,6 +143,7 @@ else:
 	  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
++["src/PhysXLowLevelAll.cpp"]\
 +["src/PhysXExtensionAll.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/ExtDefaultCpuDispatcher.cpp"]\
 +["src/PhysX/physx/source/lowlevel/common/src/pipeline/PxcContactMethodImpl.cpp"]\
@@ -251,7 +252,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/PhysX/physx/source/physxextensions/src/serialization/Xml/SnRepXUpgrader.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/serialization/Xml/SnXmlSerialization.cpp"]\
 +["src/PhysXFoundationAll.cpp"]\
-+["src/PhysXLowLevelAll.cpp"]\
 +["src/PhysXNpSrcAll.cpp"]\
 +["src/PhysXSceneQueryAll.cpp"]\
 +["src/PhysXSimulationControllerAll.cpp"]\

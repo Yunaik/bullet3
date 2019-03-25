@@ -3850,6 +3850,11 @@ namespace Dy
 		}
 	}
 
+	PxReal& jacobian(PxArticulationCache& cache, PxU32 nCols, PxU32 row, PxU32 col)
+	{
+		return cache.denseJacobian[nCols * row + col];
+	}
+
 	void FeatherstoneArticulation::getDenseJacobian(PxArticulationCache& cache, PxU32 & nRows, PxU32 & nCols)
 	{
 		//make sure motionMatrix has been set
@@ -3889,54 +3894,54 @@ namespace Dy
 		nCols = (fixBase ? 0 : 6) + totalDofs;
 		nRows = (fixBase ? 0 : 6) + jointCount * 6;
 
-		auto jacobian = [&](PxU32 row, PxU32 col) -> PxReal &  { return cache.denseJacobian[nCols * row + col]; } ;
+		//PxReal* jacobian = [&](PxU32 row, PxU32 col) -> PxReal &  { return cache.denseJacobian[nCols * row + col]; } ;
 		
 		PxU32 destRow = 0;
 		PxU32 destCol = 0;
 
 		if (!fixBase)
 		{
-			jacobian(0, 0) = 1.0f;
-			jacobian(0, 1) = 0.0f;
-			jacobian(0, 2) = 0.0f;
-			jacobian(0, 3) = 0.0f;
-			jacobian(0, 4) = 0.0f;
-			jacobian(0, 5) = 0.0f;
+			jacobian(cache,nCols, 0, 0) = 1.0f;
+			jacobian(cache,nCols, 0, 1) = 0.0f;
+			jacobian(cache,nCols, 0, 2) = 0.0f;
+			jacobian(cache,nCols, 0, 3) = 0.0f;
+			jacobian(cache,nCols, 0, 4) = 0.0f;
+			jacobian(cache,nCols, 0, 5) = 0.0f;
 
-			jacobian(1, 0) = 0.0f;
-			jacobian(1, 1) = 1.0f;
-			jacobian(1, 2) = 0.0f;
-			jacobian(1, 3) = 0.0f;
-			jacobian(1, 4) = 0.0f;
-			jacobian(1, 5) = 0.0f;
+			jacobian(cache,nCols, 1, 0) = 0.0f;
+			jacobian(cache,nCols, 1, 1) = 1.0f;
+			jacobian(cache,nCols, 1, 2) = 0.0f;
+			jacobian(cache,nCols, 1, 3) = 0.0f;
+			jacobian(cache,nCols, 1, 4) = 0.0f;
+			jacobian(cache,nCols, 1, 5) = 0.0f;
 
-			jacobian(2, 0) = 0.0f;
-			jacobian(2, 1) = 0.0f;
-			jacobian(2, 2) = 1.0f;
-			jacobian(2, 3) = 0.0f;
-			jacobian(2, 4) = 0.0f;
-			jacobian(2, 5) = 0.0f;
+			jacobian(cache,nCols, 2, 0) = 0.0f;
+			jacobian(cache,nCols, 2, 1) = 0.0f;
+			jacobian(cache,nCols, 2, 2) = 1.0f;
+			jacobian(cache,nCols, 2, 3) = 0.0f;
+			jacobian(cache,nCols, 2, 4) = 0.0f;
+			jacobian(cache,nCols, 2, 5) = 0.0f;
 
-			jacobian(3, 0) = 0.0f;
-			jacobian(3, 1) = 0.0f;
-			jacobian(3, 2) = 0.0f;
-			jacobian(3, 3) = 1.0f;
-			jacobian(3, 4) = 0.0f;
-			jacobian(3, 5) = 0.0f;
+			jacobian(cache,nCols, 3, 0) = 0.0f;
+			jacobian(cache,nCols, 3, 1) = 0.0f;
+			jacobian(cache,nCols, 3, 2) = 0.0f;
+			jacobian(cache,nCols, 3, 3) = 1.0f;
+			jacobian(cache,nCols, 3, 4) = 0.0f;
+			jacobian(cache,nCols, 3, 5) = 0.0f;
 
-			jacobian(4, 0) = 0.0f;
-			jacobian(4, 1) = 0.0f;
-			jacobian(4, 2) = 0.0f;
-			jacobian(4, 3) = 0.0f;
-			jacobian(4, 4) = 1.0f;
-			jacobian(4, 5) = 0.0f;
+			jacobian(cache,nCols, 4, 0) = 0.0f;
+			jacobian(cache,nCols, 4, 1) = 0.0f;
+			jacobian(cache,nCols, 4, 2) = 0.0f;
+			jacobian(cache,nCols, 4, 3) = 0.0f;
+			jacobian(cache,nCols, 4, 4) = 1.0f;
+			jacobian(cache,nCols, 4, 5) = 0.0f;
 
-			jacobian(5, 0) = 0.0f;
-			jacobian(5, 1) = 0.0f;
-			jacobian(5, 2) = 0.0f;
-			jacobian(5, 3) = 0.0f;
-			jacobian(5, 4) = 0.0f;
-			jacobian(5, 5) = 1.0f;
+			jacobian(cache,nCols, 5, 0) = 0.0f;
+			jacobian(cache,nCols, 5, 1) = 0.0f;
+			jacobian(cache,nCols, 5, 2) = 0.0f;
+			jacobian(cache,nCols, 5, 3) = 0.0f;
+			jacobian(cache,nCols, 5, 4) = 0.0f;
+			jacobian(cache,nCols, 5, 5) = 1.0f;
 
 			destRow += 6;
 			destCol += 6;
@@ -3967,32 +3972,32 @@ namespace Dy
 				{
 					//copy downward the 6 cols from parent
 					const PxVec3 parentAng(
-						jacobian(parentsDestRow + 3, col),
-						jacobian(parentsDestRow + 4, col),
-						jacobian(parentsDestRow + 5, col)
+						jacobian(cache, nCols, parentsDestRow + 3, col),
+						jacobian(cache, nCols, parentsDestRow + 4, col),
+						jacobian(cache, nCols, parentsDestRow + 5, col)
 						);
 
 					const PxVec3 parentAngxRw = parentAng.cross(linkDatum.rw);
 
-					jacobian(destRow + 0, col) = jacobian(parentsDestRow + 0, col) + parentAngxRw.x;
-					jacobian(destRow + 1, col) = jacobian(parentsDestRow + 1, col) + parentAngxRw.y;
-					jacobian(destRow + 2, col) = jacobian(parentsDestRow + 2, col) + parentAngxRw.z;
+					jacobian(cache,nCols, destRow + 0, col) = jacobian(cache,nCols, parentsDestRow + 0, col) + parentAngxRw.x;
+					jacobian(cache,nCols, destRow + 1, col) = jacobian(cache,nCols, parentsDestRow + 1, col) + parentAngxRw.y;
+					jacobian(cache,nCols, destRow + 2, col) = jacobian(cache,nCols, parentsDestRow + 2, col) + parentAngxRw.z;
 
-					jacobian(destRow + 3, col) = parentAng.x;
-					jacobian(destRow + 4, col) = parentAng.y;
-					jacobian(destRow + 5, col) = parentAng.z;
+					jacobian(cache,nCols, destRow + 3, col) = parentAng.x;
+					jacobian(cache,nCols, destRow + 4, col) = parentAng.y;
+					jacobian(cache,nCols, destRow + 5, col) = parentAng.z;
 				}
 
 				for (PxU32 col = parentsLastDestCol + 1; col < destCol; col++)
 				{
 					//fill with zeros.
-					jacobian(destRow + 0, col) = 0.0f;
-					jacobian(destRow + 1, col) = 0.0f;
-					jacobian(destRow + 2, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 0, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 1, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 2, col) = 0.0f;
 
-					jacobian(destRow + 3, col) = 0.0f;
-					jacobian(destRow + 4, col) = 0.0f;
-					jacobian(destRow + 5, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 3, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 4, col) = 0.0f;
+					jacobian(cache,nCols, destRow + 5, col) = 0.0f;
 				}
 			}
 
@@ -4004,13 +4009,13 @@ namespace Dy
 				const PxVec3 ang = body2World.rotate(v.top);
 				const PxVec3 lin = body2World.rotate(v.bottom);
 
-				jacobian(destRow + 0, destCol) = lin.x;
-				jacobian(destRow + 1, destCol) = lin.y;
-				jacobian(destRow + 2, destCol) = lin.z;
+				jacobian(cache,nCols, destRow + 0, destCol) = lin.x;
+				jacobian(cache,nCols, destRow + 1, destCol) = lin.y;
+				jacobian(cache,nCols, destRow + 2, destCol) = lin.z;
 
-				jacobian(destRow + 3, destCol) = ang.x;
-				jacobian(destRow + 4, destCol) = ang.y;
-				jacobian(destRow + 5, destCol) = ang.z;
+				jacobian(cache,nCols, destRow + 3, destCol) = ang.x;
+				jacobian(cache,nCols, destRow + 4, destCol) = ang.y;
+				jacobian(cache,nCols, destRow + 5, destCol) = ang.z;
 
 				destCol++;
 			}
@@ -4018,13 +4023,13 @@ namespace Dy
 			//above diagonal block: always zero
 			for (PxU32 col = destCol; col < nCols; col++)
 			{
-				jacobian(destRow + 0, col) = 0.0f;
-				jacobian(destRow + 1, col) = 0.0f;
-				jacobian(destRow + 2, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 0, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 1, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 2, col) = 0.0f;
 
-				jacobian(destRow + 3, col) = 0.0f;
-				jacobian(destRow + 4, col) = 0.0f;
-				jacobian(destRow + 5, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 3, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 4, col) = 0.0f;
+				jacobian(cache,nCols, destRow + 5, col) = 0.0f;
 			}
 
 			destRow += 6;

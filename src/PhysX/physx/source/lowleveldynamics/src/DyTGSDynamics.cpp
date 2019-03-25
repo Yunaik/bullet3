@@ -1331,7 +1331,7 @@ void writeBackContact4(const PxConstraintBatchHeader& hdr, const PxSolverConstra
 
 void writeBack1D4(const PxConstraintBatchHeader& hdr, const PxSolverConstraintDesc* PX_RESTRICT desc, SolverContext* cache);
 
-TGSWriteBackMethod g_WritebackTGSMethods[]
+TGSWriteBackMethod g_WritebackTGSMethods[]=
 {
 	0,
 	writeBackContact,													// DY_SC_TYPE_RB_CONTACT
@@ -1363,7 +1363,7 @@ void solveConcludeContactExtBlock(const PxConstraintBatchHeader& hdr, const PxSo
 void solveConclude1DBlockExt(const PxConstraintBatchHeader& hdr, const PxSolverConstraintDesc* desc,
 	const PxTGSSolverBodyTxInertia* const txInertias, const PxReal elapsedTime, SolverContext& cache);
 
-TGSSolveConcludeMethod g_SolveConcludeTGSMethods[]
+TGSSolveConcludeMethod g_SolveConcludeTGSMethods[]=
 {
 	0,
 	solveConcludeContactBlock,											// DY_SC_TYPE_RB_CONTACT
