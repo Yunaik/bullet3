@@ -585,8 +585,8 @@ bool PhysXServerCommandProcessor::processInitPoseCommand(const struct SharedMemo
 			if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
 			{
 				pt.p.x = basePos[0];
-				pt.p.y = basePos[0];
-				pt.p.z = basePos[0];
+				pt.p.y = basePos[1];
+				pt.p.z = basePos[2];
 				physxLinks[0]->setGlobalPose(pt);
 			}
 			if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)

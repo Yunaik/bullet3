@@ -507,6 +507,8 @@ public:
 	bool loadBullet(const std::string &fileName, b3RobotSimulatorLoadFileResults &results);
 	bool saveBullet(const std::string &fileName);
 
+	int loadPlugin(const std::string& pluginName, const std::string& postFix="");
+
 	int loadTexture(const std::string &fileName);
 
 	bool changeVisualShape(const struct b3RobotSimulatorChangeVisualShapeArgs &args);

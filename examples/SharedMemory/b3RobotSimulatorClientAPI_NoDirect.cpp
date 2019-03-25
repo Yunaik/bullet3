@@ -252,6 +252,32 @@ int b3RobotSimulatorClientAPI_NoDirect::loadURDF(const std::string& fileName, co
 	return robotUniqueId;
 }
 
+int b3RobotSimulatorClientAPI_NoDirect::loadPlugin(const std::string& pluginPath, const std::string& postFix)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
+	if (pluginPath.length() == 0)
+		return false;
+
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+
+	command = b3CreateCustomCommand(m_data->m_physicsClientHandle);
+	b3CustomCommandLoadPlugin(command, pluginPath.c_str());
+	if (postFix.length())
+	{
+		b3CustomCommandLoadPluginSetPostFix(command, postFix.c_str());
+	}
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+	int pluginId = b3GetStatusPluginUniqueId(statusHandle);
+	return pluginId;
+}
+
 bool b3RobotSimulatorClientAPI_NoDirect::loadMJCF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
 {
 	if (!isConnected())
