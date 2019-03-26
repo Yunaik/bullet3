@@ -281,19 +281,20 @@ static void SimpleResizeCallback(float widthf, float heightf)
 	//	gApp->m_primRenderer->setScreenSize(width, height);
 }
 
-#if 0
+
 static void SimpleKeyboardCallback(int key, int state)
 {
 	if (key == B3G_ESCAPE) //&& gApp && gApp->m_window)
 	{
-		//gApp->m_window->setRequestExit();
+		exit(0);
+	
 	}
 	else
 	{
 		//gApp->defaultKeyboardCallback(key,state);
 	}
 }
-#endif
+
 static void SimpleMouseButtonCallback(int button, int state, float x, float y)
 {
 	if (gWindow)
@@ -482,6 +483,7 @@ EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 	m_data->m_window->setResizeCallback(SimpleResizeCallback);
 	m_data->m_window->setWheelCallback(SimpleWheelCallback);
 	m_data->m_window->setMouseButtonCallback(SimpleMouseButtonCallback);
+	m_data->m_window->setKeyboardCallback(SimpleKeyboardCallback);
 	m_data->m_window->setMouseMoveCallback(SimpleMouseMoveCallback);
 }
 EGLRendererVisualShapeConverter::~EGLRendererVisualShapeConverter()
@@ -914,8 +916,8 @@ static btVector4 sColors[4] =
 		//btVector4(1,1,0,1),
 };
 
-// If you are getting segfaults in this function it may be ecause you are
-// compliling the plugin with differently from pybullet, try complining the
+// If you are getting segfaults in this function it may be because you are
+// compiling the plugin with different settings from pybullet, try complining the
 // plugin with distutils too.
 int EGLRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,

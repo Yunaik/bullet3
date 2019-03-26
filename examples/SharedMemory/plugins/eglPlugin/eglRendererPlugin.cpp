@@ -52,7 +52,11 @@ B3_SHARED_API void exitPlugin_eglRendererPlugin(struct b3PluginContext* context)
 B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface_eglRendererPlugin(struct b3PluginContext* context)
 {
 	EGLRendererPluginClass* obj = (EGLRendererPluginClass*)context->m_userPointer;
-	return &obj->m_renderer;
+	if (obj)
+	{
+		return &obj->m_renderer;
+	}
+	return 0;
 }
 
 #ifdef EGL_ADD_PYTHON_INIT

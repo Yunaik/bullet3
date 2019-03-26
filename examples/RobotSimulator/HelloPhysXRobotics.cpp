@@ -33,20 +33,45 @@ int main(int argc, char* argv[])
 	//remove all existing objects (if any)
 	//sim->resetSimulation();
 	sim->setGravity(btVector3(0, 0, -9.8));
-	sim->setNumSolverIterations(100);
-	b3RobotSimulatorSetPhysicsEngineParameters args;
-	sim->getPhysicsEngineParameters(args);
+	sim->setNumSolverIterations(1);
+	b3RobotSimulatorSetPhysicsEngineParameters args1;
+	sim->getPhysicsEngineParameters(args1);
+	btScalar dt = 1. / 240.;
+	dt /= 25;// 25;// 128.;
+	sim->setTimeStep(dt);
 
-	int planeUid = sim->loadURDF("plane.urdf");
+	b3RobotSimulatorLoadUrdfFileArgs args2;
+	args2.m_useMultiBody = false;
+	
+	int planeUid = sim->loadURDF("plane.urdf", args2);
 	printf("planeUid = %d\n", planeUid);
 
 	int r2d2Uid = sim->loadURDF("r2d2.urdf");
 	printf("r2d2 #joints = %d\n", sim->getNumJoints(r2d2Uid));
 
-	btVector3 basePosition = btVector3(0, 0, 1.);
+	btVector3 basePosition = btVector3(3, 0, 1.);
 	btQuaternion baseOrientation = btQuaternion(0, 0, 0, 1);
 
 	sim->resetBasePositionAndOrientation(r2d2Uid, basePosition, baseOrientation);
+
+	{
+		b3RobotSimulatorLoadUrdfFileArgs args;
+		b3RobotSimulatorChangeDynamicsArgs dynamicsArgs;
+		int massRatio = 2;
+		int mass = 1;
+		btScalar boxSize = 0.05;
+		for (int i = 0; i < 8; i++)
+		{
+			args.m_startPosition.setValue(0, 0, boxSize*0.5+i * boxSize);
+			args.m_useMultiBody = false;
+			int boxIdx = sim->loadURDF("cube_small.urdf", args);
+			if (i == 7)
+				mass = 10000;
+			dynamicsArgs.m_mass = mass;
+			sim->changeDynamics(boxIdx, -1, dynamicsArgs);
+			
+		}
+	}
 
 	while (sim->isConnected())
 	{

@@ -2343,7 +2343,7 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 				}
 			}
 		}
-		
+		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			B3_PROFILE("render");
 			//m_data->m_pluginManager.getRenderInterface()->render();
