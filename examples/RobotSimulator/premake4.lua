@@ -315,6 +315,10 @@ project ("App_HelloPhysXRobotics")
 
 	initOpenGL()
 	initGlew()
+
+if os.is("MacOSX") then
+	files {"../../src/PhysXFoundationUnix.cpp"}                
+end
 	
 if not _OPTIONS["no-enet"] then
 
@@ -381,6 +385,7 @@ if not _OPTIONS["no-enet"] then
 		includedirs {
                 ".",
                 "../../src/PhysX/physx/include",
+		"../../src/PhysX/physx/source/foundation/include",
 						    "../../src/PhysX/physx/include/characterkinematic",
 						    "../../src/PhysX/physx/include/common",
 						    "../../src/PhysX/physx/include/cooking",
