@@ -319,6 +319,10 @@ project ("App_HelloPhysXRobotics")
 if os.is("MacOSX") then
 	files {"../../src/PhysXFoundationUnix.cpp"}                
 end
+if os.is("Linux") then
+	files {"../../src/PhysXFoundationUnix.cpp"}
+end
+
 	
 if not _OPTIONS["no-enet"] then
 
