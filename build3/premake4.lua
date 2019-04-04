@@ -644,6 +644,6 @@ end
 	include "../src/BulletCollision"
 	include "../src/LinearMath"
 	if _OPTIONS["enable_physx"] then
-		include "../src/physx"
+		include "../src/PhysX"
 	end
 
