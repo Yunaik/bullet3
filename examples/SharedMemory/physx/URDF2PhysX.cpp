@@ -671,6 +671,8 @@ btTransform ConvertURDF2PhysXInternal(
 				{
 					cache.m_rigidDynamic = d;
 				}
+				d->setWakeCounter(PX_MAX_F32);
+				d->setSolverIterationCounts(50);
 				rbLinkPtr = d;
 								
 			}
@@ -709,8 +711,9 @@ btTransform ConvertURDF2PhysXInternal(
 				//Now create the slider and fixed joints...
 
 				//cache.m_articulation->setSolverIterationCounts(4);//todo: API?
-				cache.m_articulation->setSolverIterationCounts(32);//todo: API?
-				
+				cache.m_articulation->setSolverIterationCounts(50);
+				cache.m_articulation->setWakeCounter(PX_MAX_F32);
+
 				cache.m_jointTypes.push_back(physx::PxArticulationJointType::eUNDEFINED);
 				cache.m_parentLocalPoses.push_back(physx::PxTransform());
 				cache.m_childLocalPoses.push_back(physx::PxTransform());
@@ -827,6 +830,8 @@ btTransform ConvertURDF2PhysXInternal(
 		
 		if (rbLinkPtr && mass)
 		{
+			
+			
 			physx::PxRigidBodyExt::updateMassAndInertia(*rbLinkPtr, mass);
 		}
 		

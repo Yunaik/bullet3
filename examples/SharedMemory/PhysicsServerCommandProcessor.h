@@ -171,6 +171,7 @@ public:
 	virtual const btQuaternion& getVRTeleportOrientation() const;
 	virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
 
+	virtual class b3PluginManager* getPluginManager();
 private:
 	void addTransformChangedNotifications();
 };

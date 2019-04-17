@@ -28,17 +28,18 @@ iran = 100
 num=64
 radius=0.1
 numDominoes=0
-
+ang=0
 for i in range (int(num*50)):
   num=(radius*2*math.pi)/0.08
   radius += 0.05/float(num)
-  orn = p.getQuaternionFromEuler([0,0,0.5*math.pi+math.pi*2*i/float(num)])
+  ang = 0.5*math.pi+math.pi*2*i/float(num)
+  orn = p.getQuaternionFromEuler([0,0,ang])
   pos = [radius*math.cos(2*math.pi*(i/float(num))),radius*math.sin(2*math.pi*(i/float(num))), 0.03]
   sphere = p.loadURDF("domino/domino.urdf",pos, orn, useMaximalCoordinates=useMaximalCoordinates)
   numDominoes+=1
   
 pos=[pos[0],pos[1],pos[2]+0.3]
-orn = p.getQuaternionFromEuler([0,0,-math.pi/4.])
+orn = p.getQuaternionFromEuler([0, -math.pi/8.,ang])
 sphere = p.loadURDF("domino/domino.urdf",pos, orn, useMaximalCoordinates=useMaximalCoordinates)
 
 print("numDominoes=",numDominoes)

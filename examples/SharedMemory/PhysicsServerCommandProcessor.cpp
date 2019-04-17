@@ -7581,6 +7581,28 @@ bool PhysicsServerCommandProcessor::processForwardDynamicsCommand(const struct S
 		addTransformChangedNotifications();
 	}
 
+	if (m_data->m_pluginManager.getRenderInterface())
+	{
+		B3_PROFILE("render");
+		//m_data->m_pluginManager.getRenderInterface()->render();
+		unsigned char* pixelRGBA = 0;
+		int numRequestedPixels = 0;
+		float* depthBuffer = 0;
+		int* segmentationMaskBuffer = 0;
+		int startPixelIndex = 0;
+
+		int width = 1024;
+		int height = 768;
+		m_data->m_pluginManager.getRenderInterface()->getWidthAndHeight(width, height);
+		int numPixelsCopied = 0;
+
+
+		m_data->m_pluginManager.getRenderInterface()->copyCameraImageData(pixelRGBA, numRequestedPixels,
+			depthBuffer, numRequestedPixels,
+			segmentationMaskBuffer, numRequestedPixels,
+			startPixelIndex, &width, &height, &numPixelsCopied);
+	}
+
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
 
@@ -11788,4 +11810,9 @@ const btQuaternion& PhysicsServerCommandProcessor::getVRTeleportOrientation() co
 void PhysicsServerCommandProcessor::setVRTeleportOrientation(const btQuaternion& vrTeleportOrn)
 {
 	gVRTeleportOrn = vrTeleportOrn;
+}
+
+class b3PluginManager* PhysicsServerCommandProcessor::getPluginManager()
+{
+	return &m_data->m_pluginManager;
 }

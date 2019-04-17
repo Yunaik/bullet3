@@ -387,17 +387,19 @@ if not _OPTIONS["no-enet"] then
 		configuration{}
 
 		includedirs {
-                ".",
-                "../../src/PhysX/physx/include",
-		"../../src/PhysX/physx/source/foundation/include",
-						    "../../src/PhysX/physx/include/characterkinematic",
-						    "../../src/PhysX/physx/include/common",
-						    "../../src/PhysX/physx/include/cooking",
-						    "../../src/PhysX/physx/include/extensions",
-						    "../../src/PhysX/physx/include/geometry",
-						    "../../src/PhysX/physx/include/geomutils",
-						    "../../src/PhysX/physx/include/vehicle",
-						    "../../src/PhysX/pxshared/include",
+				".",
+				"../../src/PhysX/physx/source/foundation/include",
+				"../../src/PhysX/physx/source/common/src",
+				"../../src/PhysX/physx/source/physxextensions/src",
+				"../../src/PhysX/physx/include",
+				"../../src/PhysX/physx/include/characterkinematic",
+				"../../src/PhysX/physx/include/common",
+				"../../src/PhysX/physx/include/cooking",
+				"../../src/PhysX/physx/include/extensions",
+				"../../src/PhysX/physx/include/geometry",
+				"../../src/PhysX/physx/include/geomutils",
+				"../../src/PhysX/physx/include/vehicle",
+				"../../src/PhysX/pxshared/include",
                 }
 		links {
 				"PhysX",
@@ -418,4 +420,121 @@ if not _OPTIONS["no-enet"] then
 				"../../examples/SharedMemory/physx/URDF2PhysX.h",
 				"../../examples/SharedMemory/physx/PhysXUserData.h",
 				}
+  end
+
+
+project ("App_HelloPhysXImmediateMode")
+
+	language "C++"
+	kind "ConsoleApp"
+
+	links{"OpenGL_Window", "LinearMath","Bullet3Common"}
+	
+  includedirs {
+                ".",
+                "../../src",
+								"../../examples",
+                "../../examples/SharedMemory",
+                "../ThirdPartyLibs",
+                }
+
+	initOpenGL()
+	initGlew()
+
+if os.is("MacOSX") then
+	files {"../../src/PhysXFoundationUnix.cpp"}                
+end
+if os.is("Linux") then
+	files {"../../src/PhysXFoundationUnix.cpp"}
+end
+
+	
+if not _OPTIONS["no-enet"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
+	
+		if os.is("Windows") then 
+			defines { "WIN32" }
+			links {"Ws2_32","Winmm"}
+		end
+		if os.is("Linux") then
+		end
+		if os.is("MacOSX") then
+		end		
+		links {"enet"}		
+		defines {"BT_ENABLE_ENET"}
+	end
+
+	if not _OPTIONS["no-clsocket"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/clsocket/src"}
+
+		if os.is("Windows") then
+    		defines { "WIN32" }
+        links {"Ws2_32","Winmm"}
+    end
+    if os.is("Linux") then
+    	defines {"_LINUX"}
+    end
+		if os.is("MacOSX") then
+    	defines {"_DARWIN"}
+		end
+
+		links {"clsocket"}
+    defines {"BT_ENABLE_CLSOCKET"}
+	end
+
+	if os.is("MacOSX") then
+		links{"Cocoa.framework"}
+	end
+
+	
+	if os.is("Linux") then initX11()
+                     links {"pthread"}
+        end
+
+	
+		files {
+			 "HelloPhysXImmediateMode.cpp",
+			 "../Utils/ChromeTraceUtil.cpp",
+			 "../Utils/ChromeTraceUtil.h",
+			 "../Snippet/SnippetImmediateArticulation.cpp",
+			 "../Snippet/SnippetImmediateArticulationRender.cpp",
+			 "../Snippet/snippetutils/SnippetUtils.cpp",
+			 "../Snippet/snippetutils/SnippetUtils.h",
+		}
+
+	if _OPTIONS["enable_physx"] then
+  	defines {"BT_ENABLE_PHYSX","PX_PHYSX_STATIC_LIB", "PX_FOUNDATION_DLL=0", "PX_PROFILE"}
+		
+		configuration {"x64", "debug"}			
+				defines {"_DEBUG"}
+		configuration {"x86", "debug"}
+				defines {"_DEBUG"}
+		configuration {"x64", "release"}
+				defines {"NDEBUG"}
+		configuration {"x86", "release"}
+				defines {"NDEBUG"}
+		configuration{}
+
+		includedirs {
+				".",
+				"../../src/PhysX/physx/source/foundation/include",
+				"../../src/PhysX/physx/source/common/src",
+				"../../src/PhysX/physx/source/physxextensions/src",
+				"../../src/PhysX/physx/include",
+				"../../src/PhysX/physx/include/characterkinematic",
+				"../../src/PhysX/physx/include/common",
+				"../../src/PhysX/physx/include/cooking",
+				"../../src/PhysX/physx/include/extensions",
+				"../../src/PhysX/physx/include/geometry",
+				"../../src/PhysX/physx/include/geomutils",
+				"../../src/PhysX/physx/include/vehicle",
+				"../../src/PhysX/pxshared/include",
+                }
+		links {
+				"PhysX",
+			}
+			
+			
   end
