@@ -415,26 +415,38 @@ int main(int argc,  char* argv[])
 
 		b3AlignedObjectArray<unsigned char> texels;
 		texels.resize(textureWidth * textureHeight * 3);
-		
+
+		int reds[16] = { 0 };
+		int greens[16] = { 0 };
+		int blues[16] = { 0 };
+		blues[8] = 255;
+		reds[9] = 255;
+		blues[12] = 255;
+		reds[12] = 255;
+		greens[13] = 255;
+		reds[14] = 255;
+		greens[14] = 255;
+		greens[15] = 255;
+		blues[15] = 255;
 
 		for (int i = 0; i < textureWidth; i ++)
 		{
 			for (int j = 0; j < textureHeight; j++)
 			{
 				int a = i / (textureWidth / 4);
-				int b = j / (textureHeight/4);
-				
-				int red = 0;
-				int green = 0;
-				int blue = 0;
-				
-				if (a == 1)
-					red = 127+j*2;
+				int b = j / (textureHeight / 4);
+				int index = a + b * 4;
+				int red = reds[index];
+				int green = greens[index];
+				int blue = blues[index];
+				//mark a black border
+				if ((i % 32)==0 || (j%32)==0 || (i % 32) == 31 || (j % 32) == 31)
+				{
+					red = 0;
+					green = 0;
+					blue = 0;
+				}
 
-				
-				blue = b* (textureHeight / 2);
-				green = (a == b) * 255;
-				
 				texels[j*3*textureWidth+i*3 + 0] = red;
 				texels[j * 3 * textureWidth+ i * 3 + 1] = green;
 				texels[j * 3 * textureWidth+ i * 3 + 2] = blue;
