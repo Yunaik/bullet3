@@ -527,7 +527,6 @@ end
 
 	
 
-	dofile ("findOpenCL.lua")
 	dofile ("findDirectX11.lua")
 	
 	
@@ -603,11 +602,6 @@ end
                 _OPTIONS["no-demos"] = "1"
         else
                 include "../src/Bullet3Common"
-                include "../src/Bullet3Geometry"
-                include "../src/Bullet3Collision"
-                include "../src/Bullet3Dynamics"
-                include "../src/Bullet3OpenCL"
-                include "../src/Bullet3Serialize/Bullet2FileLoader"
         end
 
         if _OPTIONS["no-extras"] then
@@ -629,7 +623,7 @@ end
 				if not _OPTIONS["no-extras"] then
 					include "../test/InverseDynamics"
 				end
-				include "../test/TestBullet3OpenCL"
+				
 			end
 			if not _OPTIONS["no-demos"] then
 				-- Gwen is only used for demos

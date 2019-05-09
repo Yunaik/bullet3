@@ -83,16 +83,7 @@ public:
 			case TUT_SPHERE_PLANE_RTB3:
 			case TUT_SPHERE_PLANE_BULLET2:
 			{
-				if (m_tutorialIndex == TUT_SPHERE_PLANE_BULLET2)
-				{
-					m_collisionSdkHandle = plCreateBullet2CollisionSdk();
-				}
-				else
-				{
-#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
-					m_collisionSdkHandle = plCreateRealTimeBullet3CollisionSdk();
-#endif  //DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
-				}
+				m_collisionSdkHandle = plCreateBullet2CollisionSdk();
 				if (m_collisionSdkHandle)
 				{
 					int maxNumObjsCapacity = 1024;

@@ -155,7 +155,7 @@ project ("App_VRGloveHandSimulator")
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 
-	hasCL = findOpenCL("clew")
+
 
 	links{"BulletRobotics", "BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
 	initOpenGL()
@@ -172,15 +172,7 @@ project ("App_VRGloveHandSimulator")
 		links{"Cocoa.framework"}
 	end
 
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
+		
 
 		if _OPTIONS["audio"] then
 			files {

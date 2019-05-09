@@ -23,7 +23,12 @@ SimpleCameraInternalData
 	{
 		b3Transform tr;
 		tr.setIdentity();
-		tr.getOpenGLMatrix(m_offsetTransformVR);
+		b3Scalar offsetTransformVRd[16];
+		tr.getOpenGLMatrix(offsetTransformVRd);
+		for (int i = 0; i < 16; i++)
+		{
+			m_offsetTransformVR[i] = offsetTransformVRd[i];
+		}
 	}
 
 	B3_DECLARE_ALIGNED_ALLOCATOR();
@@ -279,15 +284,23 @@ void SimpleCamera::getCameraViewMatrix(float viewMatrix[16]) const
 {
 	if (m_data->m_enableVR)
 	{
+		b3Scalar tempView[16];
+		b3Scalar tempOffset[16];
+
 		for (int i = 0; i < 16; i++)
 		{
-			b3Transform tr;
-			tr.setFromOpenGLMatrix(m_data->m_viewMatrixVR);
-			b3Transform shift = b3Transform::getIdentity();
-			shift.setFromOpenGLMatrix(m_data->m_offsetTransformVR);
-			tr = tr * shift;
-			tr.getOpenGLMatrix(viewMatrix);
-			//viewMatrix[i] = m_data->m_viewMatrixVR[i];
+			tempView[i] = m_data->m_viewMatrixVR[i];
+			tempOffset[i] = m_data->m_offsetTransformVR[i];
+		}
+		b3Transform tr;
+		tr.setFromOpenGLMatrix(tempView);
+		b3Transform shift = b3Transform::getIdentity();
+		shift.setFromOpenGLMatrix(tempOffset);
+		tr = tr * shift;
+		tr.getOpenGLMatrix(tempView);
+		for (int i = 0; i < 16; i++)
+		{
+			viewMatrix[i] = tempView[i];
 		}
 	}
 	else

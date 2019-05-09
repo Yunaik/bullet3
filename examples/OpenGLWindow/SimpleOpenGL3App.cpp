@@ -736,7 +736,7 @@ int SimpleOpenGL3App::registerCubeShape(float halfExtentsX, float halfExtentsY, 
 	return shapeId;
 }
 
-void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], float color1[4])
+void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, const b3Vector4& color0, const b3Vector4&  color1)
 {
 	b3Vector3 cubeExtents = b3MakeVector3(0.5, 0.5, 0.5);
 	double halfHeight = 0.1;
@@ -750,14 +750,14 @@ void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], f
 	{
 		for (int j = 0; j < cells_z; j++)
 		{
-			float* color = 0;
+			b3Vector4 color;
 			if ((i + j) % 2 == 0)
 			{
-				color = (float*)color0;
+				color = color0;
 			}
 			else
 			{
-				color = (float*)color1;
+				color = color1;
 			}
 			if (this->m_data->m_upAxis == 1)
 			{
@@ -889,20 +889,20 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 	//b3Vector3 gridColor = b3MakeVector3(0.5,0.5,0.5);
 
 	b3AlignedObjectArray<unsigned int> indices;
-	b3AlignedObjectArray<b3Vector3> vertices;
+	b3AlignedObjectArray<b3Vector3FloatData> vertices;
 	int lineIndex = 0;
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
 		{
 			b3Assert(glGetError() == GL_NO_ERROR);
-			b3Vector3 from = b3MakeVector3(0, 0, 0);
-			from[sideAxis] = float(i);
-			from[upAxis] = upOffset;
-			from[forwardAxis] = float(-gridSize);
-			b3Vector3 to = b3MakeVector3(0, 0, 0);
-			to[sideAxis] = float(i);
-			to[upAxis] = upOffset;
-			to[forwardAxis] = float(gridSize);
+			b3Vector3FloatData from;
+			from.m_floats[sideAxis] = float(i);
+			from.m_floats[upAxis] = upOffset;
+			from.m_floats[forwardAxis] = float(-gridSize);
+			b3Vector3FloatData to;
+			to.m_floats[sideAxis] = float(i);
+			to.m_floats[upAxis] = upOffset;
+			to.m_floats[forwardAxis] = float(gridSize);
 			vertices.push_back(from);
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
@@ -913,14 +913,14 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 		b3Assert(glGetError() == GL_NO_ERROR);
 		{
 			b3Assert(glGetError() == GL_NO_ERROR);
-			b3Vector3 from = b3MakeVector3(0, 0, 0);
-			from[sideAxis] = float(-gridSize);
-			from[upAxis] = upOffset;
-			from[forwardAxis] = float(i);
-			b3Vector3 to = b3MakeVector3(0, 0, 0);
-			to[sideAxis] = float(gridSize);
-			to[upAxis] = upOffset;
-			to[forwardAxis] = float(i);
+			b3Vector3FloatData from;
+			from.m_floats[sideAxis] = float(-gridSize);
+			from.m_floats[upAxis] = upOffset;
+			from.m_floats[forwardAxis] = float(i);
+			b3Vector3FloatData to;
+			to.m_floats[sideAxis] = float(gridSize);
+			to.m_floats[upAxis] = upOffset;
+			to.m_floats[forwardAxis] = float(i);
 			vertices.push_back(from);
 			indices.push_back(lineIndex++);
 			vertices.push_back(to);
@@ -929,9 +929,9 @@ void SimpleOpenGL3App::drawGrid(DrawGridData data)
 		}
 	}
 
-	m_instancingRenderer->drawLines(&vertices[0].x,
+	m_instancingRenderer->drawLines(&vertices[0].m_floats[0],
 									gridColor,
-									vertices.size(), sizeof(b3Vector3), &indices[0], indices.size(), 1);
+									vertices.size(), sizeof(b3Vector3FloatData), &indices[0], indices.size(), 1);
 
 	m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(1, 0, 0), b3MakeVector3(1, 0, 0), 3);
 	m_instancingRenderer->drawLine(b3MakeVector3(0, 0, 0), b3MakeVector3(0, 1, 0), b3MakeVector3(0, 1, 0), 3);

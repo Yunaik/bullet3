@@ -37,6 +37,14 @@ struct BasicExample : public CommonRigidBodyBase
 	void resetCamera()
 	{
 		float dist = 4;
+		float vf = 1.001;
+		
+		double vd = 1.001;
+		float vf2 = vd;
+		double vd2 = vf;
+		double diffd = vd - vd2;
+		double difff = vf - vf2;
+
 		float pitch = -35;
 		float yaw = 52;
 		float targetPos[3] = {0, 0, 0};

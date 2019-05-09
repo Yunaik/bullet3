@@ -21,11 +21,7 @@ project "App_BulletExampleBrowser"
                 }
 				end
 		        
-        hasCL = findOpenCL("clew")
-
-        if (hasCL) then
-            initOpenCL("clew")
-        end
+        
 
         links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
         initOpenGL()
@@ -43,15 +39,6 @@ project "App_BulletExampleBrowser"
                 links{"Cocoa.framework"}
         end
 
-                if (hasCL) then
-                        links {
-                                "Bullet3OpenCL_clew",
-                                "Bullet3Dynamics",
-                                "Bullet3Collision",
-                                "Bullet3Geometry",
-                                "Bullet3Common",
-                        }
-                end
 
 	if _OPTIONS["audio"] then
 			files {"../TinyAudio/*.cpp"}
@@ -202,14 +189,6 @@ project "App_BulletExampleBrowser"
     "../ThirdPartyLibs/tinyxml2/tinyxml2.cpp",
     "../ThirdPartyLibs/tinyxml2/tinyxml2.h",
         }
-if (hasCL and findOpenGL3()) then
-			files {
-				"../OpenCL/broadphase/*",
-				"../OpenCL/CommonOpenCL/*",
-				"../OpenCL/rigidbody/GpuConvexScene.cpp",
-				"../OpenCL/rigidbody/GpuRigidBodyDemo.cpp",
-			}
-		end
 		
 if (_OPTIONS["enable_static_vr_plugin"]) then
 		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
@@ -223,16 +202,8 @@ end
 	
 project "BulletExampleBrowserLib"
 
-		hasCL = findOpenCL("clew")
-	
-		if (hasCL) then
-
-				-- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
-
-				initOpenCL("clew")
-
-		end
-
+		
+		
 		language "C++"
 				
 		kind "StaticLib"

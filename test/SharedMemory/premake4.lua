@@ -343,8 +343,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 --			"BulletCollision", 
 --			"LinearMath"
 --		}
-	hasCL = findOpenCL("clew")
-
+	
 	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
 	initOpenGL()
 	initGlew()
@@ -360,15 +359,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 		links{"Cocoa.framework"}
 	end
 
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
+		
 
 		files {
 			"test.c",

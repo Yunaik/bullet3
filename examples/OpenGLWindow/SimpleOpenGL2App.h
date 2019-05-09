@@ -27,6 +27,6 @@ public:
 	virtual void drawText3D(const char* txt, float posX, float posZY, float posZ, float size);
 	virtual void drawText3D(const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag);
 
-	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]);
+	virtual void registerGrid(int xres, int yres, const b3Vector4& color0, const b3Vector4&  color1);
 };
 #endif  //SIMPLE_OPENGL2_APP_H

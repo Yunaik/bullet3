@@ -21,7 +21,7 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 
 	virtual int registerCubeShape(float halfExtentsX = 1.f, float halfExtentsY = 1.f, float halfExtentsZ = 1.f, int textureIndex = -1, float textureScaling = 1);
 	virtual int registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId = -1);
-	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]);
+	virtual void registerGrid(int xres, int yres, const b3Vector4& color0, const b3Vector4&  color1);
 	void dumpNextFrameToPng(const char* pngFilename);
 	void dumpFramesToVideo(const char* mp4Filename);
 	virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes);

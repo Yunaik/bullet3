@@ -8,7 +8,7 @@ project ("pybullet_eglRendererPlugin")
 		includedirs {".","../../../../src", "../../../../examples",
 		"../../../ThirdPartyLibs", "../../../ThirdPartyLibs/glad"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STB_AGAIN"}
-	hasCL = findOpenCL("clew")
+	
 
 	links{"BulletCollision", "Bullet3Common", "LinearMath"}
 

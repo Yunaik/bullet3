@@ -142,7 +142,7 @@ struct CommonGraphicsApp
 	virtual int registerCubeShape(float halfExtentsX, float halfExtentsY, float halfExtentsZ, int textureIndex = -1, float textureScaling = 1) = 0;
 	virtual int registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId = -1) = 0;
 
-	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]) = 0;
+	virtual void registerGrid(int xres, int yres, const b3Vector4& color0, const b3Vector4&  color1) = 0;
 
 	void defaultMouseButtonCallback(int button, int state, float x, float y)
 	{

@@ -7,7 +7,7 @@ project ("pybullet_tinyRendererPlugin")
 		includedirs {".","../../../../src", "../../../../examples",
 		"../../../ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
-	hasCL = findOpenCL("clew")
+	
 
 	links{"BulletCollision", "Bullet3Common", "LinearMath"}
 

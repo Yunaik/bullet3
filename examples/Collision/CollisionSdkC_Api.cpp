@@ -1,7 +1,7 @@
 #include "CollisionSdkC_Api.h"
 #include "Internal/CollisionSdkInterface.h"
 #include "Internal/Bullet2CollisionSdk.h"
-#include "Internal/RealTimeBullet3CollisionSdk.h"
+
 
 /* Collision World */
 
@@ -29,14 +29,6 @@ plCollisionSdkHandle plCreateBullet2CollisionSdk()
 #endif  //DISABLE_BULLET2_COLLISION_SDK
 }
 
-plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk()
-{
-#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
-	return RealTimeBullet3CollisionSdk::createRealTimeBullet3CollisionSdkHandle();
-#else
-	return 0;
-#endif
-}
 
 void plDeleteCollisionSdk(plCollisionSdkHandle collisionSdkHandle)
 {

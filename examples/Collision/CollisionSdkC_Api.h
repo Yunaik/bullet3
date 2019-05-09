@@ -37,9 +37,6 @@ extern "C"
 
 	extern plCollisionSdkHandle plCreateBullet2CollisionSdk();
 
-#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
-	extern plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk();
-#endif  //DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
 
 	//	extern plCollisionSdkHandle plCreateCustomCollisionSdk();
 

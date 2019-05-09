@@ -98,10 +98,10 @@ public:
 	};
 #else
 	union {
-		float m_floats[4];
+		b3Scalar m_floats[4];
 		struct
 		{
-			float x, y, z, w;
+			b3Scalar x, y, z, w;
 		};
 	};
 #endif

@@ -7,7 +7,7 @@ project ("BulletRobotics")
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
-	hasCL = findOpenCL("clew")
+	
 
 	links{"BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
 	initOpenGL()

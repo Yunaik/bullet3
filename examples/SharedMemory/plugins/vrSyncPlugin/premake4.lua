@@ -7,7 +7,7 @@ project ("pybullet_vrSyncPlugin")
 		includedirs {".","../../../../src", "../../../../examples",
 		"../../../ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
-	hasCL = findOpenCL("clew")
+	
 
 	links{"BulletFileLoader", "Bullet3Common", "LinearMath"}
 

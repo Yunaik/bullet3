@@ -167,8 +167,9 @@ int main(int argc, char* argv[])
 
 			app->drawText3D(bla, position2, orientation, green, 1, CommonGraphicsApp::eDrawText3D_TrueType | CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera);
 			sprintf(bla, "3d ttf text:%d", frameCount);
-			b3Quaternion orn;
-			orn.setEulerZYX(B3_HALF_PI / 2., 0, B3_HALF_PI / 2.);
+			b3Quaternion orn1;
+			orn1.setEulerZYX(B3_HALF_PI / 2., 0, B3_HALF_PI / 2.);
+			float orn[4] = { orn1[0], orn1[1], orn1[2], orn1[3] };
 			app->drawText3D(bla, position2, orn, blue, 1, CommonGraphicsApp::eDrawText3D_TrueType);
 
 			app->swapBuffer();

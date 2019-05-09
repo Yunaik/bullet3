@@ -20,7 +20,7 @@ project ("pybullet")
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STATIC_LINK_SPD_PLUGIN"}
 		
 		
-	hasCL = findOpenCL("clew")
+
 
 	links{ "BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
 	initOpenGL()
@@ -37,16 +37,7 @@ project ("pybullet")
 		links{"Cocoa.framework","Python"}
 	end
 
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
-
+		
 if not _OPTIONS["no-enet"] then
 
 		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
