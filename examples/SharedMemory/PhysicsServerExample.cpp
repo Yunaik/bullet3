@@ -127,6 +127,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperChangeTexture,
 	eGUIHelperRemoveTexture,
 	eGUIHelperSetVisualizerFlagCheckRenderedFrame,
+	eGUIHelperChangeGraphicsInstanceScale,
 };
 
 #include <stdio.h>
@@ -990,6 +991,19 @@ public:
 		m_rgbaColor[3] = rgbaColor[3];
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceRGBAColor);
+		workerThreadWait();
+	}
+
+	double m_scale[3];
+	int m_graphicsInstanceScale;
+	virtual void changeScale(int instanceUid, const double scale[3])
+	{
+		m_graphicsInstanceScale = instanceUid;
+		m_scale[0] = scale[0];
+		m_scale[1] = scale[1];
+		m_scale[2] = scale[2];
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperChangeGraphicsInstanceScale);
 		workerThreadWait();
 	}
 
@@ -2118,6 +2132,14 @@ void PhysicsServerExample::updateGraphics()
 			m_multiThreadedHelper->mainThreadRelease();
 			break;
 		}
+
+		case eGUIHelperChangeGraphicsInstanceScale:
+		{
+			m_multiThreadedHelper->m_childGuiHelper->changeScale(m_multiThreadedHelper->m_graphicsInstanceChangeColor, m_multiThreadedHelper->m_scale);
+			m_multiThreadedHelper->mainThreadRelease();
+			break;
+		}
+
 		case eGUIHelperChangeGraphicsInstanceSpecularColor:
 		{
 			B3_PROFILE("eGUIHelperChangeGraphicsInstanceSpecularColor");

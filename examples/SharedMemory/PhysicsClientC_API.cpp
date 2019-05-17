@@ -4538,6 +4538,21 @@ B3_SHARED_API void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle comm
 	}
 }
 
+B3_SHARED_API void b3UpdateVisualShapeScale(b3SharedMemoryCommandHandle commandHandle, const double scale[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		command->m_updateVisualShapeDataArguments.m_scale[0] = scale[0];
+		command->m_updateVisualShapeDataArguments.m_scale[1] = scale[1];
+		command->m_updateVisualShapeDataArguments.m_scale[2] = scale[2];
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_SCALE;
+	}
+}
+
 B3_SHARED_API void b3UpdateVisualShapeSpecularColor(b3SharedMemoryCommandHandle commandHandle, const double specularColor[3])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*)commandHandle;

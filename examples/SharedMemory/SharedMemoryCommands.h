@@ -354,6 +354,7 @@ enum EnumUpdateVisualShapeData
 	CMD_UPDATE_VISUAL_SHAPE_TEXTURE = 1,
 	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR = 2,
 	CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR = 4,
+	CMD_UPDATE_VISUAL_SHAPE_SCALE = 8,
 };
 
 struct UpdateVisualShapeDataArgs
@@ -364,6 +365,7 @@ struct UpdateVisualShapeDataArgs
 	int m_textureUniqueId;
 	double m_rgbaColor[4];
 	double m_specularColor[3];
+	double m_scale[3];
 };
 
 struct LoadTextureArgs

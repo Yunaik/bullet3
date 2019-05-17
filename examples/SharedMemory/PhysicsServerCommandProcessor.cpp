@@ -10704,6 +10704,16 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 							}
 							m_data->m_guiHelper->changeRGBAColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
+						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SCALE)
+						{
+							if (m_data->m_pluginManager.getRenderInterface())
+							{
+								//m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId, linkIndex,
+								//	clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
+								//	clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+							}
+							m_data->m_guiHelper->changeScale(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_scale);
+						}
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR)
 						{
 							m_data->m_guiHelper->changeSpecularColor(graphicsIndex, clientCmd.m_updateVisualShapeDataArguments.m_specularColor);

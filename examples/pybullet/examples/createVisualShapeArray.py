@@ -52,8 +52,10 @@ shift2 = [0, 0, 0]
 
 meshScale = [0.1, 0.1, 0.1]
 #the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
-visualShapeId = p.createVisualShapeArray(shapeTypes=[p.GEOM_MESH, p.GEOM_BOX],
+visualShapeId = p.createVisualShapeArray(shapeTypes=[p.GEOM_MESH, p.GEOM_CYLINDER],#BOX],
                                          halfExtents=[[0, 0, 0], [0.1, 0.1, 0.1]],
+                                         radii=[0.1,0.1],
+                                         lengths=[1,1],
                                          fileNames=["duck.obj", ""],
                                          visualFramePositions=[
                                              shift1,
@@ -86,7 +88,7 @@ p.stopStateLogging(logId)
 p.setGravity(0, 0, -10)
 p.setRealTimeSimulation(1)
 
-colors = [[1, 0, 0, 1], [0, 1, 0, 1], [0, 0, 1, 1], [1, 1, 1, 1]]
+colors = [[1, 0, 0, 1], [0, 1, 0, .6], [0, 0, 1, .3], [1, 1, 1, .1]]
 currentColor = 0
 
 p.getCameraImage(64, 64, renderer=p.ER_BULLET_HARDWARE_OPENGL)
@@ -106,7 +108,7 @@ while (1):
         objectUid = hit[0]
         if (objectUid >= 0):
           #p.removeBody(objectUid)
-          p.changeVisualShape(objectUid, -1, rgbaColor=colors[currentColor])
+          p.changeVisualShape(objectUid, linkIndex=-1, shapeIndex=1,rgbaColor=colors[currentColor], scale=[1,1,10])
           currentColor += 1
           if (currentColor >= len(colors)):
             currentColor = 0

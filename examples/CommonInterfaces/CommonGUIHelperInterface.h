@@ -36,6 +36,7 @@ struct GUIHelperInterface
 	virtual void removeAllGraphicsInstances() = 0;
 	virtual void removeGraphicsInstance(int graphicsUid) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+	virtual void changeScale(int instanceUid, const double scaling[3]) = 0;
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
 	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height) {}
 
@@ -135,6 +136,7 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void removeAllGraphicsInstances() {}
 	virtual void removeGraphicsInstance(int graphicsUid) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+	virtual void changeScale(int instanceUid, const double scaling[3]) {}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
