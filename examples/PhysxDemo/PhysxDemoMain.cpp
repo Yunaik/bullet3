@@ -33,8 +33,10 @@ std::vector<int> bodies;
 // Bullet globals
 b3PhysicsClientHandle kPhysClient = 0;
 
-const char * laikago ="/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/laikago/laikago.urdf";
-const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
+//const char * laikago ="/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/laikago/laikago.urdf";
+const char * laikago ="/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/pybullet_data/laikago/laikago.urdf";
+//const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
+const char * ground = "/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/pybullet_data/plane100.urdf";
 
 const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
 
@@ -256,7 +258,10 @@ void once(int sum){
 
 //    stepsimulate(sm, 1000);
 
-    auto jinfo = getJointInfo(sm, bodies[0], 4);
+    auto jinfo = getJointInfo(sm, bodies[0], 0);
+    jinfo = getJointInfo(sm, bodies[0], 1);
+    jinfo = getJointInfo(sm, bodies[0], 10);
+    jinfo = getJointInfo(sm, bodies[0], 11);
 
     stepfuntion(sm, 2000);
 

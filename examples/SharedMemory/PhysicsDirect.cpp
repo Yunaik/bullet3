@@ -1344,9 +1344,9 @@ bool PhysicsDirect::getJointInfoPhysX(int bodyIndex, int jointIndex, struct b3Jo
 		{
 
 			info = bodyJoints->m_jointInfo[jointIndex];
-			::strcpy(info.m_jointName, u2p->getJointName(jointIndex).c_str());
-			::strcpy(info.m_linkName, u2p->getLinkName(jointIndex).c_str());
-            info.m_jointType = u2p->getJointType(jointIndex);
+			::strcpy(info.m_jointName, u2p->getJointName(jointIndex+1).c_str());
+			::strcpy(info.m_linkName, u2p->getLinkName(jointIndex+1).c_str());
+            info.m_jointType = u2p->getJointType(jointIndex+1);
 			info.m_qSize = 0;
 			info.m_uSize = 0;
 

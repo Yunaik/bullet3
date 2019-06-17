@@ -18,3 +18,7 @@ pip-selfcheck.json
 /build
 /dist
 *.eggs
+
+# IDE 
+.idea
+cmake-build-debug
