@@ -3,7 +3,7 @@
 
 #include "../PhysicsCommandProcessorInterface.h"
 #include "PhysXUrdfImporter.h"
-#include "b3PluginManager.h"
+#include "../b3PluginManager.h"
 #include "LinearMath/btHashMap.h"
 
 struct MyPhysXURDFImporter : public PhysXURDFImporter

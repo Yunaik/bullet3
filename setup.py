@@ -60,10 +60,13 @@ CXX_FLAGS += '-DBT_ENABLE_PHYSX '
 CXX_FLAGS += '-DPX_FOUNDATION_DLL=0 '
 CXX_FLAGS += '-DPX_COOKING '
 CXX_FLAGS += '-DNDEBUG '
-CXX_FLAGS += '-DDISABLE_CUDA_PHYSX '
+# CXX_FLAGS += '-DDISABLE_CUDA_PHYSX '
 CXX_FLAGS += '-DPX_PROFILE '
+CXX_FLAGS += '-DPX_SUPPORT_PVD=0 '
 CXX_FLAGS += '-DBT_USE_EGL '
-# CXX_FLAGS += '-DPX_SUPPORT_GPU_PHYSX'
+CXX_FLAGS += '-DPX_SUPPORT_GPU_PHYSX '
+
+CFLAGS =  CXX_FLAGS
 
 
 
@@ -129,6 +132,8 @@ include_dirs = ["examples",
     "src/PhysX/physx/include/geomutils",
     "src/PhysX/physx/include/vehicle",
     "src/PhysX/pxshared/include",
+    "src/PhysX/physx/include/cudamanager",
+    "src/PhysX/physx/source/physxgpu/include"
     ]
     
 
@@ -554,7 +559,8 @@ if _platform == "linux" or _platform == "linux2":
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["src/PhysXFoundationUnix.cpp"]\
-    +["examples/ThirdPartyLibs/glad/glx.c"]
+    +["examples/ThirdPartyLibs/glad/glx.c"]\
+    +["src/PhysX/physx/source/physx/src/device/linux/PhysXIndicatorLinux.cpp"] 
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
 
     if 'BT_USE_EGL' in EGL_CXX_FLAGS:
