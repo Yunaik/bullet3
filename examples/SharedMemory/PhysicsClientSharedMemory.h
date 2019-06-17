@@ -47,6 +47,11 @@ public:
 
 	virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
 
+    // add by syslot
+    virtual bool getJointInfoPhysX(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const{
+        return false;
+    }
+
 	virtual int getNumUserConstraints() const;
 
 	virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;

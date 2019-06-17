@@ -18,6 +18,9 @@
 #include "PxTolerancesScale.h"
 #include "PxDefaultCpuDispatcher.h"
 #include "PxDefaultSimulationFilterShader.h"
+#ifndef __APPLE__
+#include "PxCudaContextManager.h"
+#endif
 #include "URDF2PhysX.h"
 #include "../b3PluginManager.h"
 #include "PxRigidActorExt.h"
@@ -33,6 +36,8 @@
 #include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 #include "LinearMath/btSerializer.h"
 #include "PhysXUserData.h"
+
+#include "PxArticulationJointReducedCoordinate.h"
 
 class MyPhysXErrorCallback : public physx::PxErrorCallback
 {
@@ -224,6 +229,8 @@ struct PhysXServerCommandProcessorInternalData : public physx::PxSimulationEvent
 	physx::PxDefaultCpuDispatcher*	m_dispatcher;
 	physx::PxScene*				m_scene;
 	physx::PxMaterial*				m_material;
+
+	physx::PxCudaContextManager*    m_cudaContextManager;
 	//physx::PxPvd*                  m_pvd;
 
 	b3ResizablePool<InternalPhysXBodyHandle> m_bodyHandles;
@@ -334,7 +341,7 @@ bool PhysXServerCommandProcessor::connect()
 		sceneDesc.solverType = physx::PxSolverType::ePGS;
 		std::string solver;
 		m_data->m_commandLineArgs.GetCmdLineArgument("solver", solver);
-		
+
 		if (solver=="tgs")
 		{
 			sceneDesc.solverType = physx::PxSolverType::eTGS;
@@ -346,7 +353,53 @@ bool PhysXServerCommandProcessor::connect()
 		}
 		
 		sceneDesc.cpuDispatcher = m_data->m_dispatcher;
-		
+
+#ifndef __APPLE__
+	    // USED for GPU, added by syslot, 5/27/2019
+        physx::PxU32 GPU = 0;
+        m_data->m_commandLineArgs.GetCmdLineArgument("gpu", GPU);
+        if(GPU != 0){
+            printf("Use GPU\n");
+
+            physx::PxCudaContextManagerDesc cudaContextManagerDesc;
+
+            cudaContextManagerDesc.interopMode = physx::PxCudaInteropMode::NO_INTEROP;
+            m_data->m_cudaContextManager = PxCreateCudaContextManager(*(m_data->m_foundation),cudaContextManagerDesc, PxGetProfilerCallback());	//Create the CUDA context manager, required for GRB to dispatch CUDA kernels.
+	        if( m_data->m_cudaContextManager )
+	        {
+		        if( !m_data->m_cudaContextManager->contextIsValid() )
+		        {
+			        m_data->m_cudaContextManager->release();
+			        m_data->m_cudaContextManager = NULL;
+		        }
+	        }
+
+
+            sceneDesc.cudaContextManager = m_data->m_cudaContextManager;		//Set the CUDA context manager
+            sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;	//Enable GPU dynamics - without this enabled, simulation (contact gen and solver) will run on the CPU.
+	        sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;			//Enable PCM. PCM NP is supported on GPU. Legacy contact gen will fall back to CPU
+	        sceneDesc.flags |= physx::PxSceneFlag::eENABLE_STABILIZATION;	//Improve solver stability by enabling post-stabilization.
+	        sceneDesc.broadPhaseType = physx::PxBroadPhaseType::eGPU;		//Enable GPU broad phase. Without this set, broad phase will run on the CPU.
+	        sceneDesc.gpuMaxNumPartitions = 8;						//Defines the maximum number of partitions used by the solver. Only power-of-2 values are valid.
+															//A value of 8 generally gives best balance between performance and stability.
+            physx::PxU32  gmem_enlarge = 1;
+            m_data->m_commandLineArgs.GetCmdLineArgument("gmem_enlarge", gmem_enlarge);
+            if(gmem_enlarge > 1){
+                sceneDesc.gpuDynamicsConfig.constraintBufferCapacity *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.contactBufferCapacity *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.tempBufferCapacity *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.contactStreamSize *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.patchStreamSize *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.forceStreamCapacity *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.heapCapacity *= gmem_enlarge;
+                sceneDesc.gpuDynamicsConfig.foundLostPairsCapacity *= gmem_enlarge;
+            }
+
+        }else{
+            printf("Not use gpu!\n");
+            m_data->m_cudaContextManager = NULL;
+        }
+#endif
 		//todo: add some boolean, to allow enable/disable of this contact filtering
 		bool enableContactCallback = false;
 		m_data->m_commandLineArgs.GetCmdLineArgument("enableContactCallback", enableContactCallback);
@@ -368,7 +421,7 @@ bool PhysXServerCommandProcessor::connect()
 		
 		m_data->m_scene = m_data->m_physics->createScene(sceneDesc);
 
-		m_data->m_material = m_data->m_physics->createMaterial(0.5f, 0.5f, 0.f);
+		m_data->m_material = m_data->m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 
 		PxInitExtensions(*m_data->m_physics, 0);
 
@@ -397,8 +450,14 @@ void PhysXServerCommandProcessor::resetSimulation()
 	//PxPvdTransport* transport = gPvd->getTransport();
 	//gPvd->release();
 	//transport->release();
+#ifndef __APPLE__
+	if(m_data->m_cudaContextManager)
+	    m_data->m_cudaContextManager->release();
+#endif
 	PxCloseExtensions();
-	
+
+
+
 	m_data->m_foundation->release();
 }
 
@@ -1977,32 +2036,7 @@ bool PhysXServerCommandProcessor::processSyncUserDataCommand(const struct Shared
 	return hasStatus;
 }
 
-struct MyPhysXURDFImporter : public PhysXURDFImporter
-{
-	b3PluginManager& m_pluginManager;
-	
-	MyPhysXURDFImporter(struct CommonFileIOInterface* fileIO, double globalScaling, int flags, b3PluginManager& pluginManager)
-		:PhysXURDFImporter(fileIO, globalScaling, flags),
-		m_pluginManager(pluginManager)
-	{
 
-	}
-
-	int convertLinkVisualShapes3(
-			int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
-			const UrdfLink* linkPtr, const UrdfModel* model,
-			int collisionObjectUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO) const
-	{
-
-		if (m_pluginManager.getRenderInterface())
-		{
-			int graphicsUniqueId = m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, linkPtr, model, collisionObjectUniqueId, bodyUniqueId, fileIO);
-			return graphicsUniqueId;
-		}
-		return 0;
-	}
-
-};
 
 
 bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
@@ -2053,28 +2087,30 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 	}
 
 
-	MyPhysXURDFImporter u2p(&fileIO, globalScaling, urdfArgs.m_urdfFlags, m_data->m_pluginManager);
+	MyPhysXURDFImporter *u2p = new MyPhysXURDFImporter(&fileIO, globalScaling, urdfArgs.m_urdfFlags, m_data->m_pluginManager);
 	
 	
 
-	bool loadOk = u2p.loadURDF(urdfArgs.m_urdfFileName, useFixedBase);
+	bool loadOk = u2p->loadURDF(urdfArgs.m_urdfFileName, useFixedBase);
 
 
 	if (loadOk)
 	{
 		
 
-		for (int m = 0; m < u2p.getNumModels(); m++)
+		for (int m = 0; m < u2p->getNumModels(); m++)
 		{
-			u2p.activateModel(m);
+			u2p->activateModel(m);
 
 			btTransform rootTrans;
 			rootTrans.setOrigin(initialPos);
 			rootTrans.setRotation(initialOrn);
-			u2p.setRootTransformInWorld(rootTrans);
+			u2p->setRootTransformInWorld(rootTrans);
 
 			//get a body index
 			int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+
+			this->extraUrdfs.insert(btHashInt(bodyUniqueId), u2p);
 
 			InternalPhysXBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
@@ -2082,17 +2118,17 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 
 			
 			
-			u2p.setBodyUniqueId(bodyUniqueId);
+			u2p->setBodyUniqueId(bodyUniqueId);
 			{
 				btScalar mass = 0;
 				//bodyHandle->m_rootLocalInertialFrame.setIdentity();
-				bodyHandle->m_bodyName = u2p.getBodyName();
+				bodyHandle->m_bodyName = u2p->getBodyName();
 				btVector3 localInertiaDiagonal(0, 0, 0);
-				int urdfLinkIndex = u2p.getRootLinkIndex();
-				//u2p.getMassAndInertia2((urdfLinkIndex, mass, localInertiaDiagonal, bodyHandle->m_rootLocalInertialFrame, flags);
+				int urdfLinkIndex = u2p->getRootLinkIndex();
+				//u2p->getMassAndInertia2((urdfLinkIndex, mass, localInertiaDiagonal, bodyHandle->m_rootLocalInertialFrame, flags);
 			}
 			
-			physx::PxBase* baseObj = URDF2PhysX(m_data->m_foundation,m_data->m_physics, m_data->m_cooking, m_data->m_scene, u2p, urdfArgs.m_urdfFlags, u2p.getPathPrefix(), rootTrans, &fileIO, useMultiBody);
+			physx::PxBase* baseObj = URDF2PhysX(m_data->m_foundation,m_data->m_physics, m_data->m_cooking, m_data->m_scene, *u2p, urdfArgs.m_urdfFlags, u2p->getPathPrefix(), rootTrans, &fileIO, useMultiBody);
 
 			physx::PxRigidDynamic* c = baseObj->is<physx::PxRigidDynamic>();
 			physx::PxRigidStatic* rigidStatic = baseObj->is<physx::PxRigidStatic>();
@@ -2138,7 +2174,7 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 
 				btMultiBodyData *mbd = (btMultiBodyData *)chunk->m_oldPtr;
 				btTransform rootTrans;
-				u2p.getRootTransformInWorld(rootTrans);
+				u2p->getRootTransformInWorld(rootTrans);
 				rootTrans.getOrigin().serialize(mbd->m_baseWorldPosition);
 				rootTrans.getRotation().serialize(mbd->m_baseWorldOrientation);
 				btVector3 zero(0, 0, 0);
@@ -2230,6 +2266,8 @@ bool PhysXServerCommandProcessor::processLoadURDFCommand(const struct SharedMemo
 				
 			}
 		}
+
+
 #if 0
 		btTransform rootTrans;
 		rootTrans.setOrigin(pos);

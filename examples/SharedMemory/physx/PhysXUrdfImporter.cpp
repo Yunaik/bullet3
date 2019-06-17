@@ -1392,6 +1392,22 @@ int PhysXURDFImporter::getCollisionGroupAndMask(int linkIndex, int& colGroup, in
 	return result;
 }
 
+int PhysXURDFImporter::getJointType(int index) const {
+
+    UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(index);
+	btAssert(linkPtr);
+	if (linkPtr) {
+        UrdfLink *link = *linkPtr;
+
+        if (link->m_parentJoint) {
+            UrdfJoint *pj = link->m_parentJoint;
+            return pj->m_type;
+
+        }
+    }
+	return 0;
+}
+
 #if 0
 class btCompoundShape* PhysXURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {

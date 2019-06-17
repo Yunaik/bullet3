@@ -4125,6 +4125,139 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 	return Py_None;
 }
 
+
+// Get the a single joint info for a specific bodyUniqueId with PhysXBackEnd
+//
+// Args:
+//  bodyUniqueId - integer indicating body in simulation
+//  jointIndex - integer indicating joint for a specific body
+//
+// Joint information includes:
+//  index, name, type, q-index, u-index,
+//  flags, joint damping, joint friction
+//
+// The format of the returned list is
+// [int, str, int, int, int, int, float, float]
+//
+// TODO(hellojas): get joint positions for a body
+static PyObject* pybullet_getJointInfoPhysX(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* pyListJointInfo;
+
+	struct b3JointInfo info;
+
+	int bodyUniqueId = -1;
+	int jointIndex = -1;
+	int jointInfoSize = 17;  // size of struct b3JointInfo
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &jointIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		{
+			// printf("body index = %d, joint index =%d\n", bodyUniqueId, jointIndex);
+
+			pyListJointInfo = PyTuple_New(jointInfoSize);
+
+			if (b3GetJointInfoPhysX(sm, bodyUniqueId, jointIndex, &info))
+			{
+				//  printf("Joint%d %s, type %d, at q-index %d and u-index %d\n",
+				//          info.m_jointIndex,
+				//          info.m_jointName,
+				//          info.m_jointType,
+				//          info.m_qIndex,
+				//          info.m_uIndex);
+				//  printf("  flags=%d jointDamping=%f jointFriction=%f\n",
+				//          info.m_flags,
+				//          info.m_jointDamping,
+				//          info.m_jointFriction);
+				PyTuple_SetItem(pyListJointInfo, 0, PyInt_FromLong(info.m_jointIndex));
+
+				if (info.m_jointName[0])
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+									PyString_FromString(info.m_jointName));
+				}
+				else
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+									PyString_FromString("not available"));
+				}
+
+				PyTuple_SetItem(pyListJointInfo, 2, PyInt_FromLong(info.m_jointType));
+				PyTuple_SetItem(pyListJointInfo, 3, PyInt_FromLong(info.m_qIndex));
+				PyTuple_SetItem(pyListJointInfo, 4, PyInt_FromLong(info.m_uIndex));
+				PyTuple_SetItem(pyListJointInfo, 5, PyInt_FromLong(info.m_flags));
+				PyTuple_SetItem(pyListJointInfo, 6,
+								PyFloat_FromDouble(info.m_jointDamping));
+				PyTuple_SetItem(pyListJointInfo, 7,
+								PyFloat_FromDouble(info.m_jointFriction));
+				PyTuple_SetItem(pyListJointInfo, 8,
+								PyFloat_FromDouble(info.m_jointLowerLimit));
+				PyTuple_SetItem(pyListJointInfo, 9,
+								PyFloat_FromDouble(info.m_jointUpperLimit));
+				PyTuple_SetItem(pyListJointInfo, 10,
+								PyFloat_FromDouble(info.m_jointMaxForce));
+				PyTuple_SetItem(pyListJointInfo, 11,
+								PyFloat_FromDouble(info.m_jointMaxVelocity));
+				if (info.m_linkName[0])
+				{
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString(info.m_linkName));
+				}
+				else
+				{
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString("not available"));
+				}
+				{
+					PyObject* axis = PyTuple_New(3);
+					PyTuple_SetItem(axis, 0, PyFloat_FromDouble(info.m_jointAxis[0]));
+					PyTuple_SetItem(axis, 1, PyFloat_FromDouble(info.m_jointAxis[1]));
+					PyTuple_SetItem(axis, 2, PyFloat_FromDouble(info.m_jointAxis[2]));
+					PyTuple_SetItem(pyListJointInfo, 13, axis);
+				}
+				{
+					PyObject* pos = PyTuple_New(3);
+					PyTuple_SetItem(pos, 0, PyFloat_FromDouble(info.m_parentFrame[0]));
+					PyTuple_SetItem(pos, 1, PyFloat_FromDouble(info.m_parentFrame[1]));
+					PyTuple_SetItem(pos, 2, PyFloat_FromDouble(info.m_parentFrame[2]));
+					PyTuple_SetItem(pyListJointInfo, 14, pos);
+				}
+				{
+					PyObject* orn = PyTuple_New(4);
+					PyTuple_SetItem(orn, 0, PyFloat_FromDouble(info.m_parentFrame[3]));
+					PyTuple_SetItem(orn, 1, PyFloat_FromDouble(info.m_parentFrame[4]));
+					PyTuple_SetItem(orn, 2, PyFloat_FromDouble(info.m_parentFrame[5]));
+					PyTuple_SetItem(orn, 3, PyFloat_FromDouble(info.m_parentFrame[6]));
+					PyTuple_SetItem(pyListJointInfo, 15, orn);
+				}
+				PyTuple_SetItem(pyListJointInfo, 16, PyInt_FromLong(info.m_parentIndex));
+
+				return pyListJointInfo;
+			}
+			else
+			{
+				PyErr_SetString(SpamError, "GetJointInfo failed.");
+				return NULL;
+			}
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 // Returns the state of a specific joint in a given bodyUniqueId
 //
 // Args:
@@ -10449,6 +10582,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getJointInfo", (PyCFunction)pybullet_getJointInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the name and type info for a joint on a body."},
+
+	 {"getJointInfoPhysX", (PyCFunction)pybullet_getJointInfoPhysX, METH_VARARGS | METH_KEYWORDS,
+	 "Get the name and type info for a joint on a body with PhysX backend."},
 
 	{"getJointState", (PyCFunction)pybullet_getJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Get the state (position, velocity etc) for a joint on a body."},

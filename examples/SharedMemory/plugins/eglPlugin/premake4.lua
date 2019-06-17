@@ -6,7 +6,7 @@ project ("pybullet_eglRendererPlugin")
 		initEGL()
 		
 		includedirs {".","../../../../src", "../../../../examples",
-		"../../../ThirdPartyLibs", "../../../ThirdPartyLibs/glad"}
+		"../../../ThirdPartyLibs", "../../../ThirdPartyLibs/glad", "/opt/X11/include"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "STB_AGAIN"}
 	hasCL = findOpenCL("clew")
 

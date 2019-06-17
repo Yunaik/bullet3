@@ -2,6 +2,36 @@
 #define PHYSX_SERVER_COMMAND_PROCESSOR_H
 
 #include "../PhysicsCommandProcessorInterface.h"
+#include "PhysXUrdfImporter.h"
+#include "b3PluginManager.h"
+#include "LinearMath/btHashMap.h"
+
+struct MyPhysXURDFImporter : public PhysXURDFImporter
+{
+	b3PluginManager& m_pluginManager;
+
+	MyPhysXURDFImporter(struct CommonFileIOInterface* fileIO, double globalScaling, int flags, b3PluginManager& pluginManager)
+		:PhysXURDFImporter(fileIO, globalScaling, flags),
+		m_pluginManager(pluginManager)
+	{
+
+	}
+
+	int convertLinkVisualShapes3(
+			int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
+			const UrdfLink* linkPtr, const UrdfModel* model,
+			int collisionObjectUniqueId, int bodyUniqueId, struct  CommonFileIOInterface* fileIO) const
+	{
+
+		if (m_pluginManager.getRenderInterface())
+		{
+			int graphicsUniqueId = m_pluginManager.getRenderInterface()->convertVisualShapes(linkIndex, pathPrefix, localInertiaFrame, linkPtr, model, collisionObjectUniqueId, bodyUniqueId, fileIO);
+			return graphicsUniqueId;
+		}
+		return 0;
+	}
+
+};
 
 class PhysXServerCommandProcessor : public PhysicsCommandProcessorInterface
 {
@@ -52,6 +82,10 @@ public:
 	virtual void setTimeOut(double timeOutInSeconds) {}
 
 	virtual void reportNotifications() {}
+
+
+	btHashMap<btHashInt, MyPhysXURDFImporter*> extraUrdfs;
+
 };
 
 #endif  //PHYSX_SERVER_COMMAND_PROCESSOR_H

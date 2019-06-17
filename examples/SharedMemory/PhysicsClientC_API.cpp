@@ -2564,6 +2564,12 @@ B3_SHARED_API int b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyUniqu
 	return cl->getJointInfo(bodyUniqueId, jointIndex, *info);
 }
 
+B3_SHARED_API int b3GetJointInfoPhysX(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	return cl->getJointInfoPhysX(bodyUniqueId, jointIndex, *info);
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3CreateCustomCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

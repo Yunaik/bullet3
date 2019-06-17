@@ -126,6 +126,10 @@ extern "C"
 	///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 	B3_SHARED_API int b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info);
 
+	///Same result with b3GetJointInfo for physx backend
+	// Add by syslot
+	B3_SHARED_API int b3GetJointInfoPhysX(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, struct b3JointInfo* info);
+
 	///user data handling
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitSyncUserDataCommand(b3PhysicsClientHandle physClient);
 	B3_SHARED_API b3SharedMemoryCommandHandle b3InitAddUserDataCommand(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, int visualShapeIndex, const char* key, enum UserDataValueType valueType, int valueLength, const void* valueData);

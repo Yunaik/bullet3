@@ -111,6 +111,7 @@ public:
 
 	int getNumPhysXLinks() const;
 
+	virtual int getJointType(int index) const;
 };
 
 #endif  //PHYSX_URDF_IMPORTER_H
