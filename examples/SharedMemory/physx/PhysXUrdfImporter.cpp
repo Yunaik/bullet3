@@ -39,6 +39,7 @@ static btScalar gUrdfDefaultCollisionMargin = 0.001;
 #include <list>
 #include "../../Importers/ImportURDFDemo/URDFJointTypes.h"
 #include "../../Importers/ImportURDFDemo/UrdfParser.h"
+#include "../SharedMemoryPublic.h"
 
 
 ATTRIBUTE_ALIGNED16(struct)
@@ -1398,10 +1399,25 @@ int PhysXURDFImporter::getJointType(int index) const {
 	btAssert(linkPtr);
 	if (linkPtr) {
         UrdfLink *link = *linkPtr;
-
         if (link->m_parentJoint) {
             UrdfJoint *pj = link->m_parentJoint;
-            return pj->m_type;
+            switch(pj->m_type){
+                case URDFRevoluteJoint:
+                case URDFContinuousJoint:
+                    return eRevoluteType;
+                case URDFPrismaticJoint:
+                    return ePrismaticType;
+
+
+                case URDFFloatingJoint:
+                    return ePoint2PointType;
+                case URDFPlanarJoint:
+                    return ePlanarType;
+                case URDFFixedJoint:
+                    return eFixedType;
+                case URDFSphericalJoint:
+                    return eSphericalType;
+            }
 
         }
     }
