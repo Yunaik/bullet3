@@ -6,12 +6,12 @@ import math
 usePhysX = True
 useMaximalCoordinates = True
 if usePhysX:
-  p.connect(p.PhysX,options="--numCores=8 --solver=pgs")
+  p.connect(p.PhysX,options="--numCores=8 --gpu=1 --solver=tgs")
   p.loadPlugin("eglRendererPlugin")
 else:
   p.connect(p.GUI)
 
-p.setPhysicsEngineParameter(fixedTimeStep=1./240.,numSolverIterations=4, minimumSolverIslandSize=1024)
+p.setPhysicsEngineParameter(fixedTimeStep=1./1000.,numSolverIterations=10, minimumSolverIslandSize=1024)
 p.setPhysicsEngineParameter(contactBreakingThreshold=0.01)
 
 p.setAdditionalSearchPath(pd.getDataPath())
@@ -65,7 +65,7 @@ print("numJoints = ", p.getNumJoints(door))
 
 
 p.setGravity(0,0,-10)
-position_control = True
+position_control = False
 
 angle = math.pi*0.25
 p.resetJointState(door,1,angle)  

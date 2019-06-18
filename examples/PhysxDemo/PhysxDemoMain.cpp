@@ -37,7 +37,7 @@ b3PhysicsClientHandle kPhysClient = 0;
 //const char * laikago ="/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/pybullet_data/laikago/laikago.urdf";
 const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago_description/laikago_foot.urdf";
 //const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
-const char * ground = "/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/pybullet_data/plane100.urdf";
+const char * ground = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/plane/plane.urdf";
 
 const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
 
@@ -103,7 +103,6 @@ void render(PhysicsDirect *){
 //    }
 
 }
-
 
 int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3MakeVector3(0,0,0), b3Vector4 rpy =
         b3MakeVector4(0,0,0,1)) {
@@ -185,26 +184,22 @@ void getAllJointState(PhysicsDirect *sm){
     }
 }
 
-void setJointState(PhysicsDirect *sm, int uid, int jointindex){
+void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtVel){
     int status_type=0;
     b3SharedMemoryCommandHandle cmd_handle = b3JointControlCommandInit2((b3PhysicsClientHandle)sm, uid, CONTROL_MODE_POSITION_VELOCITY_PD);
-    float kp = 0.1, kd=10;
-    float force = 100000.0;
+    float kp = 400, kd=10;
+    float force = 40;
 
-    b3JointControlSetDesiredPosition(cmd_handle, jointindex,
-													 0);
-					b3JointControlSetKp(cmd_handle, jointindex, kp);
-					b3JointControlSetDesiredVelocity(cmd_handle, jointindex,0);
-					b3JointControlSetKd(cmd_handle, jointindex, kd);
-					b3JointControlSetMaximumForce(cmd_handle, jointindex, force);
-
+    b3JointControlSetDesiredVelocity(cmd_handle, jointindex, tgtVel);
+    b3JointControlSetKd(cmd_handle, jointindex, kd);
+    b3JointControlSetMaximumForce(cmd_handle, jointindex, force);
 }
 
 void setAllJointState(PhysicsDirect *sm){
 //#pragma omp parallel for
     for(int uid =0; uid < bodies.size(); uid++){
         for(int i=0;i<12;i++)
-            setJointState(sm, uid, i);
+            setJointStateWithVel(sm, uid, i, 0);
     }
 }
 
@@ -214,7 +209,7 @@ void stepfuntion(PhysicsDirect *sm, int step){
         b3SharedMemoryStatusHandle statusHandle;
         int statusType;
 
-        setAllJointState(sm);
+//        setAllJointState(sm);
 
         if (b3CanSubmitCommand((b3PhysicsClientHandle) sm)) {
             statusHandle = b3SubmitClientCommandAndWaitStatus(
@@ -259,14 +254,13 @@ void once(int sum){
 
 //    stepsimulate(sm, 1000);
 
-    int num = getNumofJoints(sm, bodies[0]);
-    for(int i=0;i<num;i++) {
-        auto jinfo = getJointInfo(sm, bodies[0], i);
-        std::cout << jinfo.m_jointType<< std::endl;
-    }
+//    int num = getNumofJoints(sm, bodies[0]);
+//    for(int i=0;i<num;i++) {
+//        auto jinfo = getJointInfo(sm, bodies[0], i);
+//        std::cout << jinfo.m_jointType<< std::endl;
+//    }
 
-
-    stepfuntion(sm, 2000);
+    stepfuntion(sm, 1000);
 
     //stop_log(sm, logid);
 	sm->disconnectSharedMemory();

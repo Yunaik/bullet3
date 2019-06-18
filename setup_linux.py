@@ -63,11 +63,9 @@ CXX_FLAGS += '-DNDEBUG '
 # CXX_FLAGS += '-DDISABLE_CUDA_PHYSX '
 CXX_FLAGS += '-DPX_PROFILE '
 CXX_FLAGS += '-DPX_SUPPORT_PVD=0 '
-CXX_FLAGS += '-DBT_USE_EGL '
 CXX_FLAGS += '-DPX_SUPPORT_GPU_PHYSX '
 
 CFLAGS =  CXX_FLAGS
-
 
 
 
@@ -539,10 +537,9 @@ egl_renderer_sources = ["examples/SharedMemory/plugins/eglPlugin/eglRendererVisu
 +["examples/OpenGLWindow/GLRenderToTexture.cpp"] \
 +["examples/OpenGLWindow/LoadShader.cpp"]
 
-# if 'BT_USE_EGL' in CXX_FLAGS:
-    # sources += ['examples/ThirdPartyLibs/glad/egl.c']
-    # sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
-    # include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
+if 'BT_USE_EGL' in CXX_FLAGS:
+    sources += ['examples/ThirdPartyLibs/glad/egl.c']
+    sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
 
 if _platform == "linux" or _platform == "linux2":
     libraries = ['dl','pthread']
@@ -598,17 +595,6 @@ elif _platform == "darwin":
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/glad/gl.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
-    if 'BT_USE_EGL' in EGL_CXX_FLAGS:
-        egl_renderer_sources = egl_renderer_sources\
-        +["examples/OpenGLWindow/EGLOpenGLWindow.cpp"]\
-        +['examples/ThirdPartyLibs/glad/egl.c']
-
-        include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
-    else:
-        egl_renderer_sources = egl_renderer_sources\
-        +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-        +["examples/ThirdPartyLibs/glad/glx.c"]
-
 else:
     print("bsd!")
     libraries = ['GL','GLEW','pthread']

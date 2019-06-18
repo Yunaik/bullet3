@@ -22,3 +22,8 @@ pip-selfcheck.json
 # IDE 
 .idea
 cmake-build-debug
+
+# DEVELOP dynamic library
+examples/pybullet/gym/eglRenderer.cpython-36m-x86_64-linux-gnu.so
+examples/pybullet/gym/pybullet.cpython-36m-x86_64-linux-gnu.so
+

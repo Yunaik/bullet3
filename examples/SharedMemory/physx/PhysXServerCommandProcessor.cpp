@@ -2695,6 +2695,9 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
 			serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
 
+			// Add by syslot, release the physx Articulation Cache
+			bodyHandle->mArticulation->releaseCache(*c);
+
 			hasStatus = true;
 		}
 	}
