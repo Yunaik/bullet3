@@ -20,6 +20,7 @@
 #include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "PhysicsServerCommandProcessor.h"
+#include "../CommonInterfaces/CommonRigidBodyBase.h"
 //#include "omp.h"
 
 #include <cmath>
@@ -34,12 +35,12 @@ std::vector<int> bodies;
 b3PhysicsClientHandle kPhysClient = 0;
 
 //const char * laikago ="/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/laikago/laikago.urdf";
-//const char * laikago ="/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/pybullet_data/laikago/laikago.urdf";
 const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago_description/laikago_foot.urdf";
 //const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
 const char * ground = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/plane/plane.urdf";
 
 const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
+uint64_t ts = 0;
 
 PhysicsDirect* init(){
 
@@ -105,7 +106,7 @@ void render(PhysicsDirect *){
 }
 
 int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3MakeVector3(0,0,0), b3Vector4 rpy =
-        b3MakeVector4(0,0,0,1)) {
+        b3MakeVector4(0,0,0,1), int fixed_base = 0) {
 
         int flags = 0;
 
@@ -117,6 +118,7 @@ int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3Ma
         b3LoadUrdfCommandSetFlags(command, flags);
         b3LoadUrdfCommandSetStartPosition(command, pos.getX(), pos.getY(), pos.getZ());
         b3LoadUrdfCommandSetStartOrientation(command, rpy.getX(), rpy.getY(), rpy.getZ(), rpy.getW());
+        b3LoadUrdfCommandSetUseFixedBase(command, fixed_base);
 
         statusHandle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle) sm, command);
         statusType = b3GetStatusType(statusHandle);
@@ -129,6 +131,27 @@ int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3Ma
         bodies.push_back(uid);
 
         return uid;
+}
+
+int batchLoadUrdf(PhysicsDirect *sm, int sum){
+    const char * logfile = "/tmp/%d.json\0";
+    char buf[16];
+    sprintf(buf, logfile, sum);
+
+    //auto logid = start_log(sm, buf);
+
+    // Load laikago
+    b3Vector3 pos = b3MakeVector3(0,0, 1);
+    b3Vector4 rpy = b3MakeVector4(0,0.707, 0.707, 0);
+
+
+    int u = ceil(sqrt(sum));
+    float dist = 2.5;
+    float offset = u * dist/2;
+    for(int i = 0 ;i < sum; i++){
+        loadUrdf(sm, laikago, b3MakeVector3(i/u*dist - offset, i%u *dist - offset, 1), rpy, 1);
+    }
+    loadUrdf(sm, ground);
 }
 
 void stepsimulate(PhysicsDirect *sm, int step) {
@@ -177,11 +200,34 @@ b3JointSensorState getJointState(PhysicsDirect *sm, int uid, int jointindex){
     return sensorState;
 }
 
-void getAllJointState(PhysicsDirect *sm){
-    for(auto uid : bodies){
-        for(int i=0;i<12;i++)
-            getJointState(sm, uid, i);
-    }
+std::vector<b3JointSensorState> getAllJointState(PhysicsDirect *sm, int uid){
+
+    std::vector<b3JointSensorState> states;
+
+    for(int i=0;i<12;i++)
+        states.push_back(getJointState(sm, uid, i));
+
+//        if(uid != bodies.size() -1){
+//            std::cout << "angel : " << std::endl;
+//            for(auto s: states){
+//                std::cout << s.m_jointPosition << ' ';
+//            }
+//            std::cout << std::endl;
+
+//            std::cout << "vel : " << std::endl;
+//            for(auto s: states){
+//                std::cout << s.m_jointVelocity << ' ';
+//            }
+//            std::cout << std::endl;
+
+//            std::cout << "torq : " << std::endl;
+//            for(auto s: states){
+//                std::cout << s.m_jointMotorTorque << ' ';
+//            }
+//            std::cout << std::endl;
+//        }
+    return states;
+
 }
 
 void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtVel){
@@ -191,82 +237,140 @@ void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtV
     float force = 40;
 
     b3JointControlSetDesiredVelocity(cmd_handle, jointindex, tgtVel);
+    b3JointControlSetKp(cmd_handle, jointindex, kp);
     b3JointControlSetKd(cmd_handle, jointindex, kd);
     b3JointControlSetMaximumForce(cmd_handle, jointindex, force);
 }
 
-void setAllJointState(PhysicsDirect *sm){
+void setAllJointState(PhysicsDirect *sm, int uid){
 //#pragma omp parallel for
-    for(int uid =0; uid < bodies.size(); uid++){
-        for(int i=0;i<12;i++)
-            setJointStateWithVel(sm, uid, i, 0);
+    for(int i=0;i<12;i++)
+        setJointStateWithVel(sm, uid, i, 20);
+}
+
+void step(PhysicsDirect *sm){
+
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+
+    if (b3CanSubmitCommand((b3PhysicsClientHandle) sm)) {
+        statusHandle = b3SubmitClientCommandAndWaitStatus(
+                (b3PhysicsClientHandle) sm,
+                b3InitStepSimulationCommand((b3PhysicsClientHandle) sm)
+        );
+        statusType = b3GetStatusType(statusHandle);
     }
 }
 
+void stepfuntion(PhysicsDirect *sm, int cmd_step, int sim_freq = 1000, int ctrl_freq = 500, int cmd_freq = 25){
 
-void stepfuntion(PhysicsDirect *sm, int step){
-        for (int i = 0; i < step; i++) {
-        b3SharedMemoryStatusHandle statusHandle;
-        int statusType;
+        int iterval = sim_freq / cmd_freq;
+        int motor_iterval = sim_freq / ctrl_freq;
 
-//        setAllJointState(sm);
+        for (int i = 0; i < cmd_step; i++) {
+            for(int j =0;j < iterval; j++){
+            if(ts % motor_iterval == 0) {
+                std::vector<b3JointSensorState> states = getAllJointState(sm, bodies[0]);
 
-        if (b3CanSubmitCommand((b3PhysicsClientHandle) sm)) {
-            statusHandle = b3SubmitClientCommandAndWaitStatus(
-                    (b3PhysicsClientHandle) sm,
-                    b3InitStepSimulationCommand((b3PhysicsClientHandle) sm)
-            );
-            statusType = b3GetStatusType(statusHandle);
+                std::cout << "angel : " << std::endl;
+                for(auto s: states){
+                    std::cout << s.m_jointPosition << ' ';
+                }
+                std::cout << std::endl;
+
+                std::cout << "vel : " << std::endl;
+                for(auto s: states){
+                    std::cout << s.m_jointVelocity << ' ';
+                }
+                std::cout << std::endl;
+
+                setAllJointState(sm,bodies[0]);
+            }
+            step(sm);
         }
-
-        getAllJointState(sm);
     }
-
 }
 
-void once(int sum){
+void jointDebug(PhysicsDirect *sm){
+
+    int num = getNumofJoints(sm, bodies[0]);
+    for(int i=0;i<num;i++) {
+        auto jinfo = getJointInfo(sm, bodies[0], i);
+        std::cout << jinfo.m_jointType<< std::endl;
+        std::cout << "lower limit : " << jinfo.m_jointLowerLimit << std::endl
+                  << "upper limit : " << jinfo.m_jointUpperLimit << std::endl
+                  << "max vel : " << jinfo.m_jointMaxVelocity << std::endl
+                  << "max torq : " << jinfo.m_jointMaxForce << std::endl;
+    }
+}
+
+struct Gui : public CommonRigidBodyBase
+{
+	Gui(struct GUIHelperInterface* helper)
+		: CommonRigidBodyBase(helper)
+	{
+	}
+	virtual ~Gui() {}
+	virtual void initPhysics();
+	virtual void renderScene();
+	void resetCamera()
+	{
+		float dist = 4;
+		float pitch = -35;
+		float yaw = 52;
+		float targetPos[3] = {0, 0, 0};
+		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
+	}
+    PhysicsDirect * sm;
+	int sum;
+};
+
+void Gui::initPhysics() {
+    this->sm = init();
+    batchLoadUrdf(sm, sum);
+}
+
+void Gui::renderScene() {
+    stepfuntion(this->sm, 400);
+    CommonRigidBodyBase::renderScene();
+}
+
+void once(int sum, bool render = false){
 
     auto begin = std::chrono::high_resolution_clock::now();
 
     std::cout << "start : " <<sum << std::endl;
-    auto sm = init();
 
-    const char * logfile = "/tmp/%d.json\0";
-    char buf[16];
-    sprintf(buf, logfile, sum);
+    PhysicsDirect * sm;
+    Gui *gui;
 
-    //auto logid = start_log(sm, buf);
+    if(!render) {
+        sm = init();
+        batchLoadUrdf(sm, sum);
+    }else{
+        DummyGUIHelper noGfx;
+	    CommonExampleOptions options(&noGfx);
 
-    // Load laikago
-    b3Vector3 pos = b3MakeVector3(0,0, 0.47);
-    b3Vector4 rpy = b3MakeVector4(0,0.707, 0.707, 0);
-
-
-    int u = ceil(sqrt(sum));
-    float dist = 2.5;
-    float offset = u * dist/2;
-    for(int i = 0 ;i < sum; i++){
-        loadUrdf(sm, laikago, b3MakeVector3(i/u*dist - offset, i%u *dist - offset, 0.47), rpy);
+	    gui = new Gui(options.m_guiHelper);
+	    gui->sum = 1;
+	    gui->initPhysics();
     }
 
-    loadUrdf(sm, ground);
     auto urdf_cost = std::chrono::high_resolution_clock::now();
 
-//    stepsimulate(sm, 1000);
 
-//    int num = getNumofJoints(sm, bodies[0]);
-//    for(int i=0;i<num;i++) {
-//        auto jinfo = getJointInfo(sm, bodies[0], i);
-//        std::cout << jinfo.m_jointType<< std::endl;
-//    }
-
-    stepfuntion(sm, 1000);
-
-    //stop_log(sm, logid);
-	sm->disconnectSharedMemory();
+    //jointDebug(sm);
+    if(!render) {
+        stepfuntion(sm, 1000/25 * 10);
+        //stop_log(sm, logid);
+        sm->disconnectSharedMemory();
+    }else{
+        gui->renderScene();
+    }
 
 	auto loadurdf_cost = std::chrono::duration_cast<std::chrono::duration<float> >(urdf_cost-begin).count();
 	auto fn_cost = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::high_resolution_clock::now() - urdf_cost).count();
+
 	std::cout << "urdf cost : " << loadurdf_cost << ", fn_cost : " << fn_cost << std::endl
 	    << "end : " << sum << std::endl;
 
@@ -274,8 +378,6 @@ void once(int sum){
 
 int main()
 {
-    once(1);
-
-
+    once(1, true);
 	return 0;
 }
