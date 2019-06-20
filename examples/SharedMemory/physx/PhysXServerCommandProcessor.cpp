@@ -2384,7 +2384,7 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 		if (m_data->m_pluginManager.getRenderInterface())
 		{
 			B3_PROFILE("render");
-			//m_data->m_pluginManager.getRenderInterface()->render();
+//			m_data->m_pluginManager.getRenderInterface()->render();
 			unsigned char* pixelRGBA = 0;
 			int numRequestedPixels = 0;
 			float* depthBuffer = 0;
@@ -2655,7 +2655,7 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 			}
 
 			physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
-			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY);// physx::PxArticulationCache::eALL);
+			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY | physx::PxArticulationCache::eFORCE);// physx::PxArticulationCache::eALL);
 
 			btAlignedObjectArray<int> dofStarts;
 			dofStarts.resize(numLinks2);
@@ -2688,7 +2688,8 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				for (int d = 0; d < dofs; d++)
 				{
 					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = c->jointPosition[dofStarts[llIndex + d]];
-					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomU++] = c->jointVelocity[dofStarts[llIndex + d]];
+					serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = c->jointVelocity[dofStarts[llIndex + d]];
+					serverCmd.m_sendActualStateArgs.m_jointMotorForce[totalDegreeOfFreedomQ-1] = c->jointForce[dofStarts[llIndex + d]];
 				}
 			}
 

@@ -35,7 +35,8 @@ std::vector<int> bodies;
 b3PhysicsClientHandle kPhysClient = 0;
 
 //const char * laikago ="/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/laikago/laikago.urdf";
-const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago_description/laikago_foot.urdf";
+//const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago_description/laikago_foot.urdf";
+const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago/laikago.urdf";
 //const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
 const char * ground = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/plane/plane.urdf";
 
@@ -88,20 +89,22 @@ void stop_log(PhysicsDirect *sm, int logid){
     int statusType = b3GetStatusType(statusHandle);
 }
 
-void render(PhysicsDirect *){
+void render(PhysicsDirect *sm){
     	// Load Egl Render
-//    {
-//        char * pluginPath = "/home/syslot/DevSpace/bullet3/bin/libpybullet_eglRendererPlugin_gmake_x64_release.so";
-//        b3SharedMemoryCommandHandle command = b3CreateCustomCommand((b3PhysicsClientHandle)sm);
-//	    b3SharedMemoryStatusHandle statusHandle = 0;
-//
-//	    b3CustomCommandLoadPlugin(command, pluginPath);
-//	    statusHandle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle)sm, command);
-//
-//	    int statusType = -1;
-//	    statusType = b3GetStatusPluginUniqueId(statusHandle);
-//	    std::cout << "load library status" << statusType << std::endl;
-//    }
+    {
+        char * pluginPath = "/home/syslot/DevSpace/bullet3/bin/libpybullet_eglRendererPlugin_gmake_x64_release.so";
+//        char * pluginPath = "/home/syslot/.pyenv/versions/3.6.7/envs/dev/lib/python3.6/site-packages/pybullet-2.4.3-py3.6-linux-x86_64.egg/eglRenderer.cpython-36m-x86_64-linux-gnu.so";
+        b3SharedMemoryCommandHandle command = b3CreateCustomCommand((b3PhysicsClientHandle)sm);
+	    b3SharedMemoryStatusHandle statusHandle = 0;
+
+	    b3CustomCommandLoadPlugin(command, pluginPath);
+	    b3CustomCommandLoadPluginSetPostFix(command, "_eglRendererPlugin");
+	    statusHandle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle)sm, command);
+
+	    int statusType = -1;
+	    statusType = b3GetStatusPluginUniqueId(statusHandle);
+	    std::cout << "load library status" << statusType << std::endl;
+    }
 
 }
 
@@ -141,7 +144,7 @@ int batchLoadUrdf(PhysicsDirect *sm, int sum){
     //auto logid = start_log(sm, buf);
 
     // Load laikago
-    b3Vector3 pos = b3MakeVector3(0,0, 1);
+    b3Vector3 pos = b3MakeVector3(0,0, 5);
     b3Vector4 rpy = b3MakeVector4(0,0.707, 0.707, 0);
 
 
@@ -171,7 +174,6 @@ void stepsimulate(PhysicsDirect *sm, int step) {
     }
 
 }
-
 
 int getNumofJoints(PhysicsDirect* sm, int uid){
     return b3GetNumJoints((b3PhysicsClientHandle)sm, uid);
@@ -206,33 +208,14 @@ std::vector<b3JointSensorState> getAllJointState(PhysicsDirect *sm, int uid){
 
     for(int i=0;i<12;i++)
         states.push_back(getJointState(sm, uid, i));
-
-//        if(uid != bodies.size() -1){
-//            std::cout << "angel : " << std::endl;
-//            for(auto s: states){
-//                std::cout << s.m_jointPosition << ' ';
-//            }
-//            std::cout << std::endl;
-
-//            std::cout << "vel : " << std::endl;
-//            for(auto s: states){
-//                std::cout << s.m_jointVelocity << ' ';
-//            }
-//            std::cout << std::endl;
-
-//            std::cout << "torq : " << std::endl;
-//            for(auto s: states){
-//                std::cout << s.m_jointMotorTorque << ' ';
-//            }
-//            std::cout << std::endl;
-//        }
     return states;
 
 }
 
 void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtVel){
     int status_type=0;
-    b3SharedMemoryCommandHandle cmd_handle = b3JointControlCommandInit2((b3PhysicsClientHandle)sm, uid, CONTROL_MODE_POSITION_VELOCITY_PD);
+    b3SharedMemoryCommandHandle cmd_handle = b3JointControlCommandInit2((b3PhysicsClientHandle)sm, uid, CONTROL_MODE_VELOCITY);
+    b3SharedMemoryStatusHandle status_handle;
     float kp = 400, kd=10;
     float force = 40;
 
@@ -240,6 +223,8 @@ void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtV
     b3JointControlSetKp(cmd_handle, jointindex, kp);
     b3JointControlSetKd(cmd_handle, jointindex, kd);
     b3JointControlSetMaximumForce(cmd_handle, jointindex, force);
+
+    status_handle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle) sm, cmd_handle);
 }
 
 void setAllJointState(PhysicsDirect *sm, int uid){
@@ -335,7 +320,7 @@ void Gui::renderScene() {
     CommonRigidBodyBase::renderScene();
 }
 
-void once(int sum, bool render = false){
+void once(int sum, bool is_render = false){
 
     auto begin = std::chrono::high_resolution_clock::now();
 
@@ -344,7 +329,7 @@ void once(int sum, bool render = false){
     PhysicsDirect * sm;
     Gui *gui;
 
-    if(!render) {
+    if(!is_render) {
         sm = init();
         batchLoadUrdf(sm, sum);
     }else{
@@ -360,7 +345,8 @@ void once(int sum, bool render = false){
 
 
     //jointDebug(sm);
-    if(!render) {
+    if(!is_render) {
+        render(sm);
         stepfuntion(sm, 1000/25 * 10);
         //stop_log(sm, logid);
         sm->disconnectSharedMemory();
@@ -378,6 +364,6 @@ void once(int sum, bool render = false){
 
 int main()
 {
-    once(1, true);
+    once(1);
 	return 0;
 }
