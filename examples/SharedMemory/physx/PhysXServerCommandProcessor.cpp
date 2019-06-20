@@ -800,6 +800,7 @@ bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct Sh
 							{
 								forceLimit = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex];
 							}
+//							printf("anymal debug : force %f, stiffness %f, damping %f \n ", forceLimit,stiffness, damping);
 							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit);
 						}
 					}
@@ -871,10 +872,11 @@ bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct Sh
 								forceLimit = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex];
 							}
 							
-							//physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eFORCE;
-							physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eACCELERATION;
+							physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eFORCE;
+//							physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eACCELERATION;
 							joint->setDriveTarget(physx::PxArticulationAxis::eTWIST, desiredPosition);
 							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit,driveType);
+//							printf("anymal debug 2 : pos %f,force %f, stiffness %f, damping %f \n ", desiredPosition, forceLimit,stiffness, damping);
 						}
 					}
 
@@ -2321,7 +2323,8 @@ bool PhysXServerCommandProcessor::processForwardDynamicsCommand(const struct Sha
 		B3_PROFILE("PhysX_simulate_fetchResults");
 		
 		m_data->m_scene->simulate(m_data->m_physicsDeltaTime);
-		m_data->m_scene->fetchResults(true);
+		physx::PxU32 error = 0;
+		m_data->m_scene->fetchResults(true,&error);
 	}
 	{
 		B3_PROFILE("syncTransform");
@@ -2654,8 +2657,14 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				totalDegreeOfFreedomU += 6;                                      //3 linear and 3 angular DOF
 			}
 
+			bodyHandle->mArticulation->commonInit();
 			physx::PxArticulationCache* c = bodyHandle->mArticulation->createCache();
-			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY | physx::PxArticulationCache::eFORCE);// physx::PxArticulationCache::eALL);
+
+//			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::ePOSITION | physx::PxArticulationCache::eVELOCITY | physx::PxArticulationCache::eFORCE);// physx::PxArticulationCache::eALL);
+
+			bodyHandle->mArticulation->copyInternalStateToCache(*c, physx::PxArticulationCache::eALL);
+			bodyHandle->mArticulation->computeGeneralizedGravityForce(*c);
+			bodyHandle->mArticulation->computeJointForce(*c);
 
 			btAlignedObjectArray<int> dofStarts;
 			dofStarts.resize(numLinks2);
@@ -2689,7 +2698,7 @@ bool PhysXServerCommandProcessor::processRequestActualStateCommand(const struct 
 				{
 					serverCmd.m_sendActualStateArgs.m_actualStateQ[totalDegreeOfFreedomQ++] = c->jointPosition[dofStarts[llIndex + d]];
 					serverCmd.m_sendActualStateArgs.m_actualStateQdot[totalDegreeOfFreedomU++] = c->jointVelocity[dofStarts[llIndex + d]];
-					serverCmd.m_sendActualStateArgs.m_jointMotorForce[totalDegreeOfFreedomQ-1] = c->jointForce[dofStarts[llIndex + d]];
+					serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = c->jointForce[dofStarts[llIndex + d]];
 				}
 			}
 

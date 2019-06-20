@@ -45,7 +45,7 @@ uint64_t ts = 0;
 
 PhysicsDirect* init(){
 
-    char * options = "--numCores=1 --solver=pgs --gpu=0";
+    char * options = "--numCores=1 --solver=pgs --gpu=1";
 
     char** argv = urdfStrSplit(options, " ");
 	int argc = urdfStrArrayLen(argv);
@@ -220,8 +220,8 @@ void setJointStateWithVel(PhysicsDirect *sm, int uid, int jointindex, float tgtV
     float force = 40;
 
     b3JointControlSetDesiredVelocity(cmd_handle, jointindex, tgtVel);
-    b3JointControlSetKp(cmd_handle, jointindex, kp);
-    b3JointControlSetKd(cmd_handle, jointindex, kd);
+//    b3JointControlSetKp(cmd_handle, jointindex, kp);
+//    b3JointControlSetKd(cmd_handle, jointindex, kd);
     b3JointControlSetMaximumForce(cmd_handle, jointindex, force);
 
     status_handle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle) sm, cmd_handle);
@@ -266,6 +266,12 @@ void stepfuntion(PhysicsDirect *sm, int cmd_step, int sim_freq = 1000, int ctrl_
                 std::cout << "vel : " << std::endl;
                 for(auto s: states){
                     std::cout << s.m_jointVelocity << ' ';
+                }
+                std::cout << std::endl;
+
+                std::cout << "torq : " << std::endl;
+                for(auto s: states){
+                    std::cout << s.m_jointMotorTorque << ' ';
                 }
                 std::cout << std::endl;
 
