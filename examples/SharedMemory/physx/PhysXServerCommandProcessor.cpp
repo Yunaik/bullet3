@@ -359,7 +359,7 @@ bool PhysXServerCommandProcessor::connect()
         physx::PxU32 GPU = 0;
         m_data->m_commandLineArgs.GetCmdLineArgument("gpu", GPU);
         if(GPU != 0){
-            printf("Use GPU\n");
+            printf("Use GPU 1\n");
 
             physx::PxCudaContextManagerDesc cudaContextManagerDesc;
 
@@ -376,7 +376,7 @@ bool PhysXServerCommandProcessor::connect()
 
 
             sceneDesc.cudaContextManager = m_data->m_cudaContextManager;		//Set the CUDA context manager
-            sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;	//Enable GPU dynamics - without this enabled, simulation (contact gen and solver) will run on the CPU.
+//            sceneDesc.flags |= physx::PxSceneFlag::eENABLE_GPU_DYNAMICS;	//Enable GPU dynamics - without this enabled, simulation (contact gen and solver) will run on the CPU.
 	        sceneDesc.flags |= physx::PxSceneFlag::eENABLE_PCM;			//Enable PCM. PCM NP is supported on GPU. Legacy contact gen will fall back to CPU
 	        sceneDesc.flags |= physx::PxSceneFlag::eENABLE_STABILIZATION;	//Improve solver stability by enabling post-stabilization.
 	        sceneDesc.broadPhaseType = physx::PxBroadPhaseType::eGPU;		//Enable GPU broad phase. Without this set, broad phase will run on the CPU.
@@ -420,6 +420,7 @@ bool PhysXServerCommandProcessor::connect()
 		
 		
 		m_data->m_scene = m_data->m_physics->createScene(sceneDesc);
+		m_data->m_scene->setSolverBatchSize(1024);
 
 		m_data->m_material = m_data->m_physics->createMaterial(0.5f, 0.5f, 0.6f);
 

@@ -38,6 +38,22 @@ B3_SHARED_API int initPlugin_eglRendererPlugin(struct b3PluginContext* context)
 
 B3_SHARED_API int executePluginCommand_eglRendererPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
+    EGLRendererPluginClass* obj = (EGLRendererPluginClass*)context->m_userPointer;
+    if(obj)
+    {
+        if(arguments->m_numFloats != 6)
+            return -1;
+
+        float camDist = arguments->m_floats[0];
+        float yaw = arguments->m_floats[1];
+        float pitch = arguments->m_floats[2];
+        float camPosX = arguments->m_floats[3];
+        float camPosY = arguments->m_floats[4];
+        float camPosZ = arguments->m_floats[5];
+        obj->m_renderer.resetCamera(camDist, yaw, pitch, camPosX, camPosY, camPosZ);
+
+        return CMD_CLIENT_COMMAND_COMPLETED;
+    }
 	return -1;
 }
 

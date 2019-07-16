@@ -36,16 +36,17 @@ b3PhysicsClientHandle kPhysClient = 0;
 
 //const char * laikago ="/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/laikago/laikago.urdf";
 //const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago_description/laikago_foot.urdf";
-const char * laikago = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/laikago/laikago.urdf";
+//const char * laikago = "/home/syslot/DevSpace/WALLE/src/urdf/laikago/laikago.urdf";
+const char * laikago = "/home/syslot/DevSpace/WALLE/src/urdf/laikago_description/laikago_gpu.urdf";
 //const char * ground = "/Users/syslot/DevSpace/Source/PGT/FIP/hml/bullet3/examples/pybullet/gym/pybullet_data/plane.urdf";
-const char * ground = "/home/syslot/DevSpace/WALLE/src/pybullet_demo/urdf/plane/plane.urdf";
+const char * ground = "/home/syslot/DevSpace/WALLE/src/urdf/plane/plane.urdf";
 
 const b3Scalar FIXED_TIMESTEP = 1.0 / ((b3Scalar)CONTROL_RATE);
 uint64_t ts = 0;
 
 PhysicsDirect* init(){
 
-    char * options = "--numCores=1 --solver=pgs --gpu=1";
+    char * options = "--numCores=2 --solver=tgs --gpu=1";
 
     char** argv = urdfStrSplit(options, " ");
 	int argc = urdfStrArrayLen(argv);
@@ -58,18 +59,23 @@ PhysicsDirect* init(){
 	bool connected;
 	connected = sm->connect();
 
+
 	return sm;
 }
 
-int start_log(PhysicsDirect * sm, const char * log_name){
+int start_log(PhysicsDirect * sm, int sum){
 
+
+    const char * logfile = "/tmp/%d.json\0";
+    char buf[16];
+    sprintf(buf, logfile, sum);
 
     int loggingType = b3StateLoggingType::STATE_LOGGING_PROFILE_TIMINGS;
 
     b3SharedMemoryCommandHandle commandHandle;
     commandHandle = b3StateLoggingCommandInit((b3PhysicsClientHandle)sm);
 
-    b3StateLoggingStart(commandHandle, loggingType, log_name);
+    b3StateLoggingStart(commandHandle, loggingType, buf);
 
     b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle)sm, commandHandle);
     int statusType = b3GetStatusType(statusHandle);
@@ -104,11 +110,25 @@ void render(PhysicsDirect *sm){
 	    int statusType = -1;
 	    statusType = b3GetStatusPluginUniqueId(statusHandle);
 	    std::cout << "load library status" << statusType << std::endl;
+
+        command = b3CreateCustomCommand((b3PhysicsClientHandle)sm);
+	    b3CustomCommandExecutePluginCommand(command, 1, NULL);
+
+	    float cam[6] = {100.0, 30.0, 52, 0,0,0};
+	    for(int i = 0;i<6;i++)
+            b3CustomCommandExecuteAddFloatArgument(command, cam[i]);
+
+
+	    statusHandle = b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle)sm, command);
+	    statusType = b3GetStatusPluginCommandResult(statusHandle);
+
+	    std::cout << "change camera" << std::endl;
+
     }
 
 }
 
-int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3MakeVector3(0,0,0), b3Vector4 rpy =
+int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3MakeVector3(0,0,0.8), b3Vector4 rpy =
         b3MakeVector4(0,0,0,1), int fixed_base = 0) {
 
         int flags = 0;
@@ -137,16 +157,12 @@ int loadUrdf(PhysicsDirect * sm, const char * urdfFilename, b3Vector3 pos = b3Ma
 }
 
 int batchLoadUrdf(PhysicsDirect *sm, int sum){
-    const char * logfile = "/tmp/%d.json\0";
-    char buf[16];
-    sprintf(buf, logfile, sum);
 
-    //auto logid = start_log(sm, buf);
 
     // Load laikago
     b3Vector3 pos = b3MakeVector3(0,0, 5);
-    b3Vector4 rpy = b3MakeVector4(0,0.707, 0.707, 0);
-
+//    b3Vector4 rpy = b3MakeVector4(0,0.707, 0.707, 0);
+    b3Vector4 rpy = b3MakeVector4(0,0,0,1);
 
     int u = ceil(sqrt(sum));
     float dist = 2.5;
@@ -202,6 +218,34 @@ b3JointSensorState getJointState(PhysicsDirect *sm, int uid, int jointindex){
     return sensorState;
 }
 
+int getBaseVelocity(PhysicsDirect *sm, int uid){
+
+        b3SharedMemoryCommandHandle cmd_handle =
+            b3RequestActualStateCommandInit((b3PhysicsClientHandle)sm, uid);
+        b3SharedMemoryStatusHandle status_handle =
+            b3SubmitClientCommandAndWaitStatus((b3PhysicsClientHandle)sm, cmd_handle);
+
+
+
+        const int status_type = b3GetStatusType(status_handle);
+
+        const double* actualStateQdot;
+
+        b3GetStatusActualState(
+				status_handle, 0 /* body_unique_id */,
+				0 /* num_degree_of_freedom_q */, 0 /* num_degree_of_freedom_u */,
+				0 /*root_local_inertial_frame*/, 0,
+				&actualStateQdot, 0 /* joint_reaction_forces */);
+
+        std::cout <<"Linear Velocity : " << actualStateQdot[0] << " "
+                                            << actualStateQdot[1] << " "
+                                            << actualStateQdot[2] << ", "
+                  <<"Angluar Velocity : " << actualStateQdot[3] << " "
+                                          << actualStateQdot[4] << " "
+                                          << actualStateQdot[5] << std::endl;
+        return 0;
+}
+
 std::vector<b3JointSensorState> getAllJointState(PhysicsDirect *sm, int uid){
 
     std::vector<b3JointSensorState> states;
@@ -255,27 +299,30 @@ void stepfuntion(PhysicsDirect *sm, int cmd_step, int sim_freq = 1000, int ctrl_
         for (int i = 0; i < cmd_step; i++) {
             for(int j =0;j < iterval; j++){
             if(ts % motor_iterval == 0) {
-                std::vector<b3JointSensorState> states = getAllJointState(sm, bodies[0]);
 
-                std::cout << "angel : " << std::endl;
-                for(auto s: states){
-                    std::cout << s.m_jointPosition << ' ';
-                }
-                std::cout << std::endl;
+//                getBaseVelocity(sm, bodies[0]);
 
-                std::cout << "vel : " << std::endl;
-                for(auto s: states){
-                    std::cout << s.m_jointVelocity << ' ';
-                }
-                std::cout << std::endl;
-
-                std::cout << "torq : " << std::endl;
-                for(auto s: states){
-                    std::cout << s.m_jointMotorTorque << ' ';
-                }
-                std::cout << std::endl;
-
-                setAllJointState(sm,bodies[0]);
+//                std::vector<b3JointSensorState> states = getAllJointState(sm, bodies[0]);
+//
+//                std::cout << "angel : " << std::endl;
+//                for(auto s: states){
+//                    std::cout << s.m_jointPosition << ' ';
+//                }
+//                std::cout << std::endl;
+//
+//                std::cout << "vel : " << std::endl;
+//                for(auto s: states){
+//                    std::cout << s.m_jointVelocity << ' ';
+//                }
+//                std::cout << std::endl;
+//
+//                std::cout << "torq : " << std::endl;
+//                for(auto s: states){
+//                    std::cout << s.m_jointMotorTorque << ' ';
+//                }
+//                std::cout << std::endl;
+//
+//                setAllJointState(sm,bodies[0]);
             }
             step(sm);
         }
@@ -334,9 +381,10 @@ void once(int sum, bool is_render = false){
 
     PhysicsDirect * sm;
     Gui *gui;
-
+    int logid = -1;
     if(!is_render) {
         sm = init();
+        logid = start_log(sm, sum);
         batchLoadUrdf(sm, sum);
     }else{
         DummyGUIHelper noGfx;
@@ -352,9 +400,9 @@ void once(int sum, bool is_render = false){
 
     //jointDebug(sm);
     if(!is_render) {
-        render(sm);
-        stepfuntion(sm, 1000/25 * 10);
-        //stop_log(sm, logid);
+//        render(sm);
+        stepfuntion(sm, 1000/25 * 1);
+        stop_log(sm, logid);
         sm->disconnectSharedMemory();
     }else{
         gui->renderScene();
@@ -370,6 +418,6 @@ void once(int sum, bool is_render = false){
 
 int main()
 {
-    once(1);
+    once(10);
 	return 0;
 }

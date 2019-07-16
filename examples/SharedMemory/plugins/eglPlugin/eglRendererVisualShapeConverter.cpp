@@ -473,9 +473,12 @@ EGLRendererVisualShapeConverter::EGLRendererVisualShapeConverter()
 	m_data = new EGLRendererVisualShapeConverterInternalData();
 	
 	
-	float dist = 1.5;
-	float pitch = -10;
-	float yaw = -80;
+//	float dist = 1.5;
+//	float pitch = -10;
+//	float yaw = -80;
+    float dist = 10;
+    float pitch = -30;
+    float yaw = 52;
 	float targetPos[3] = {0, 0, 0};
 	m_data->m_camera.setCameraUpAxis(m_data->m_upAxis);
 	resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
