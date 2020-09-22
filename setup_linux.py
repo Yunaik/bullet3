@@ -64,7 +64,6 @@ CXX_FLAGS += '-DNDEBUG '
 CXX_FLAGS += '-DPX_PROFILE '
 CXX_FLAGS += '-DPX_SUPPORT_PVD=0 '
 CXX_FLAGS += '-DPX_SUPPORT_GPU_PHYSX '
-
 CFLAGS =  CXX_FLAGS
 
 
@@ -550,6 +549,7 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once '
+    CXX_FLAGS += '-w '
     EGL_CXX_FLAGS += '-DBT_USE_EGL '
     EGL_CXX_FLAGS += '-fPIC ' # for plugins
 
