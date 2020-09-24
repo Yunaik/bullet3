@@ -33,6 +33,7 @@
 #include "gpu/PxGpu.h"
 #include "cudamanager/PxCudaContextManager.h"
 #include "PxPhysics.h"
+#include <iostream>
 
 #include "PsFoundation.h"
 
@@ -144,9 +145,9 @@ namespace physx
 			void* hLibCuda = dlopen("libcuda.so", RTLD_NOW | RTLD_GLOBAL);
 			if (hLibCuda)
 			{
-				s_library = dlopen(gPhysXGpuLibraryName, RTLD_NOW);
-				// s_library = dlopen("libPhysXGpu_64.so", RTLD_NOW);
-                
+				// s_library = dlopen(gPhysXGpuLibraryName, RTLD_NOW);
+                // std::cout << "11111111111111111111111111111111111HERE" << std::endl;
+				s_library = dlopen("libPhysXGpu_64.so", RTLD_NOW);
 			}
 			else
 			{
