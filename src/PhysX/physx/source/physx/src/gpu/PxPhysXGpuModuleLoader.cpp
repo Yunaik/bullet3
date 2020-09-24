@@ -144,8 +144,9 @@ namespace physx
 			void* hLibCuda = dlopen("libcuda.so", RTLD_NOW | RTLD_GLOBAL);
 			if (hLibCuda)
 			{
-//				s_library = dlopen(gPhysXGpuLibraryName, RTLD_NOW);
-                s_library = dlopen("libPhysXGpu_64.so", RTLD_NOW);
+				s_library = dlopen(gPhysXGpuLibraryName, RTLD_NOW);
+				// s_library = dlopen("libPhysXGpu_64.so", RTLD_NOW);
+                
 			}
 			else
 			{

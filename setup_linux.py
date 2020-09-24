@@ -151,7 +151,6 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/PhysXExtensionAll.cpp"]\
 +["src/PhysX/physx/source/physxextensions/src/ExtDefaultCpuDispatcher.cpp"]\
 +["src/PhysX/physx/source/lowlevel/common/src/pipeline/PxcContactMethodImpl.cpp"]\
-+["src/PhysX/physx/source/lowlevel/common/src/collision/PxcContact.cpp"]\
 +["examples/SharedMemory/physx/PhysXC_API.cpp"]\
 +["examples/SharedMemory/physx/PhysXServerCommandProcessor.cpp"]\
 +["examples/SharedMemory/physx/PhysXUrdfImporter.cpp"]\
