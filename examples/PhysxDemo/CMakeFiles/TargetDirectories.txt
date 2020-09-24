@@ -1,0 +1,3 @@
+/home/kai/physx/bullet3/examples/PhysxDemo/CMakeFiles/rebuild_cache.dir
+/home/kai/physx/bullet3/examples/PhysxDemo/CMakeFiles/PhysxDemo.dir
+/home/kai/physx/bullet3/examples/PhysxDemo/CMakeFiles/edit_cache.dir
