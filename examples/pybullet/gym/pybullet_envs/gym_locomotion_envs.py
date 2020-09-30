@@ -51,13 +51,13 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # print("ALIVE: %.3f" %self._alive )
         return self._alive < 0
 
-    def move_robot(self, init_x, init_y, init_z):
-        "Used by multiplayer stadium to move sideways, to another running lane."
-        self.cpp_robot.query_position()
-        pose = self.cpp_robot.root_part.pose()
-        # print("Pose: %.2f, %.2f, %.2f" % (init_x, init_y, init_z))
-        pose.move_xyz(init_x, init_y, init_z)  # Works because robot loads around (0,0,0), and some robots have z != 0 that is left intact
-        self.cpp_robot.set_pose(pose)
+    # def move_robot(self, init_x, init_y, init_z):
+    #     "Used by multiplayer stadium to move sideways, to another running lane."
+    #     self.cpp_robot.query_position()
+    #     pose = self.cpp_robot.root_part.pose()
+    #     # print("Pose: %.2f, %.2f, %.2f" % (init_x, init_y, init_z))
+    #     pose.move_xyz(init_x, init_y, init_z)  # Works because robot loads around (0,0,0), and some robots have z != 0 that is left intact
+    #     self.cpp_robot.set_pose(pose)
 
     electricity_cost     = -2.0    # cost for using motors -- this parameter should be carefully tuned against reward for making progress, other values less improtant
     stall_torque_cost    = -0.1    # cost for running electric current through a motor even at zero rotational speed, small

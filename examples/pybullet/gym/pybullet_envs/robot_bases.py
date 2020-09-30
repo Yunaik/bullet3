@@ -35,7 +35,8 @@ class XmlBasedRobot:
     def addToScene(self, bullet_client, bodies):
         self._p = bullet_client
         getJointInfo = self._p.getJointInfoPhysX if self.isPhysx else self._p.getJointInfo
-
+        # print("IS PHYSX: %d" %self.isPhysx)
+        # print("===================")
         if self.parts is not None:
             parts = self.parts
         else:
