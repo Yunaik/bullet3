@@ -48,7 +48,7 @@ class MJCFBaseBulletEnv(gym.Env):
         return [seed]
 
     def reset(self):
-        print("HERE1")
+        # print("HERE1")
         if (self.physicsClientId<0):
             assert 3 == 4
             self.ownsPhysicsClient = True
@@ -65,19 +65,19 @@ class MJCFBaseBulletEnv(gym.Env):
             self.scene = self.create_scene(self._p)
         if not self.scene.multiplayer and self.ownsPhysicsClient:
             self.scene.episode_restart(self._p)
-        print("HERE2")
+        # print("HERE2")
 
         self.robot.scene = self.scene
-        print("HERE3")
+        # print("HERE3")
 
         self.frame = 0
         self.done = 0
         self.reward = 0
         dump = 0
-        print("HERE4")
+        # print("HERE4")
 
         s = self.robot.reset(self._p)
-        print("HERE5")
+        # print("HERE5")
 
         self.potential = self.robot.calc_potential()
         return s

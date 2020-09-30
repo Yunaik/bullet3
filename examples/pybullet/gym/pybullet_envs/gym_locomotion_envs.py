@@ -24,15 +24,12 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         return self.stadium_scene
 
     def reset(self):
-        print("COol")
 
-        if (self.stateId>=0):
+        # if (self.stateId>=0):
             #print("restoreState self.stateId:",self.stateId)
-            self._p.restoreState(self.stateId)
-        print("COol1")
+            # self._p.restoreState(self.stateId)
 
         r = MJCFBaseBulletEnv.reset(self)
-        print("COol2")
 
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,0)
 
@@ -41,10 +38,10 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
         #                        self.foot_ground_object_names])
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
-        if (self.stateId<0):
-            self.stateId=self._p.saveState()
+        # if (self.stateId<0):
+            # self.stateId=self._p.saveState()
             #print("saving state self.stateId:",self.stateId)
-        print("COol3")
+        # print("COol3")
 
 
         return r
@@ -58,7 +55,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         "Used by multiplayer stadium to move sideways, to another running lane."
         self.cpp_robot.query_position()
         pose = self.cpp_robot.root_part.pose()
-        print("Pose: %.2f, %.2f, %.2f" % (init_x, init_y, init_z))
+        # print("Pose: %.2f, %.2f, %.2f" % (init_x, init_y, init_z))
         pose.move_xyz(init_x, init_y, init_z)  # Works because robot loads around (0,0,0), and some robots have z != 0 that is left intact
         self.cpp_robot.set_pose(pose)
 
@@ -173,8 +170,8 @@ class AntBulletEnv(WalkerBaseBulletEnv):
         WalkerBaseBulletEnv.__init__(self, self.robot, render)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0]):
-        self.robot = Humanoid(basePosition=pos, fixed_base=True)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False):
+        self.robot = Humanoid(basePosition=pos, fixed_base=True, isPhysx=isPhysx)
         # self.robot = Humanoid()
         WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
         self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost

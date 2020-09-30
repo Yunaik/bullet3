@@ -14,7 +14,9 @@ class XmlBasedRobot:
     """
 
     self_collision = True
-    def __init__(self,  robot_name, action_dim, obs_dim, self_collision):
+    def __init__(self,  robot_name, action_dim, obs_dim, self_collision, isPhysx=False):
+        self.isPhysx = isPhysx
+
         self.parts = None
         self.objects = []
         self.jdict = None
@@ -32,6 +34,7 @@ class XmlBasedRobot:
 
     def addToScene(self, bullet_client, bodies):
         self._p = bullet_client
+        getJointInfo = self._p.getJointInfoPhysX if self.isPhysx else self._p.getJointInfo
 
         if self.parts is not None:
             parts = self.parts
@@ -55,12 +58,16 @@ class XmlBasedRobot:
         for i in range(len(bodies)):
             if self._p.getNumJoints(bodies[i]) == 0:
                 part_name, robot_name = self._p.getBodyInfo(bodies[i])
+                # print("Part name: ", part_name, ", robot_name", robot_name)
                 self.robot_name = robot_name.decode("utf8")
                 part_name = part_name.decode("utf8")
                 parts[part_name] = BodyPart(self._p, part_name, bodies, i, -1)
             for j in range(self._p.getNumJoints(bodies[i])):
                 self._p.setJointMotorControl2(bodies[i],j,pybullet.POSITION_CONTROL,positionGain=0.1,velocityGain=0.1,force=0)
-                jointInfo = self._p.getJointInfo(bodies[i], j)
+
+                jointInfo = getJointInfo(bodies[i], j)
+                # print("jointInfo: ",jointInfo)
+
                 joint_name=jointInfo[1]
                 part_name=jointInfo[12]
 
@@ -80,11 +87,11 @@ class XmlBasedRobot:
                     self.robot_body = parts[self.robot_name]
 
                 if joint_name[:6] == "ignore":
-                    Joint(self._p, joint_name, bodies, i, j).disable_motor()
+                    Joint(self._p, joint_name, bodies, i, j, isPhysx=self.isPhysx).disable_motor()
                     continue
 
                 if joint_name[:8] != "jointfix":
-                    joints[joint_name] = Joint(self._p, joint_name, bodies, i, j)
+                    joints[joint_name] = Joint(self._p, joint_name, bodies, i, j, isPhysx=self.isPhysx)
                     ordered_joints.append(joints[joint_name])
 
                     joints[joint_name].power_coef = 100.0
@@ -139,8 +146,8 @@ class URDFBasedRobot(XmlBasedRobot):
     Base class for URDF .xml based robots.
     """
 
-    def __init__(self, model_urdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, self_collision=False):
-        XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
+    def __init__(self, model_urdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, self_collision=False, isPhysx=False):
+        XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision, isPhysx=isPhysx)
 
         self.model_urdf = model_urdf
         self.basePosition = basePosition
@@ -279,14 +286,15 @@ class BodyPart:
 
 
 class Joint:
-    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex):
+    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex,isPhysx):
         self.bodies = bodies
         self._p = bullet_client
         self.bodyIndex = bodyIndex
         self.jointIndex = jointIndex
         self.joint_name = joint_name
-
-        jointInfo = self._p.getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
+        getJointInfo = self._p.getJointInfoPhysX if isPhysx else self._p.getJointInfo
+        jointInfo = getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
+        # print("JOINT INFO: ", jointInfo)
         self.lowerLimit = jointInfo[8]
         self.upperLimit = jointInfo[9]
 
@@ -298,11 +306,20 @@ class Joint:
     def current_position(self): # just some synonyme method
         return self.get_state()
 
+    # def current_relative_position(self):
+    #     pos, vel = self.get_state()
+    #     pos_mid = 0.5 * (self.lowerLimit + self.upperLimit);
+    #     print("upper: ", self.upperLimit, "lowerlimit: ", self.lowerLimit)
+
+    #     return (
+    #         2 * (pos - pos_mid) / (self.upperLimit - self.lowerLimit),
+    #         0.1 * vel
+    #     )
     def current_relative_position(self):
         pos, vel = self.get_state()
-        pos_mid = 0.5 * (self.lowerLimit + self.upperLimit);
+
         return (
-            2 * (pos - pos_mid) / (self.upperLimit - self.lowerLimit),
+            pos,
             0.1 * vel
         )
 

@@ -6,8 +6,8 @@ import pybullet_data
 from robot_bases import BodyPart
 
 class WalkerBaseURDF(URDFBasedRobot):
-    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False):
-        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base)
+    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, isPhysx=False):
+        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -18,8 +18,10 @@ class WalkerBaseURDF(URDFBasedRobot):
 
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
+        # print("jklasfjklasdjf")
         for j in self.ordered_joints:
             j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
+        # print("parts: ", self.parts)
 
         self.feet = [self.parts[f] for f in self.foot_list]
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
@@ -222,17 +224,19 @@ class Humanoid(WalkerBaseURDF):
     self_collision = True
     foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
-    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False):
-        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False):
+        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, 
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         # WalkerBase.__init__(self,  'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41, player_n=player_n)
         # 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
 
     def robot_specific_reset(self, bullet_client):
-        print("Hello1")
+        # print("Hello1")
+        
 
         # WalkerBase.robot_specific_reset(self, bullet_client)
         WalkerBaseURDF.robot_specific_reset(self, bullet_client)
-        print("Hello2")
+        # print("Hello2")
         self.motor_names  = ["abdomen_z", "abdomen_y", "abdomen_x"]
         self.motor_power  = [100, 100, 100]
         self.motor_names += ["right_hip_x", "right_hip_z", "right_hip_y", "right_knee"]
