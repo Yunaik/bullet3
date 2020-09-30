@@ -146,7 +146,7 @@ class URDFBasedRobot(XmlBasedRobot):
         self.basePosition = basePosition
         self.baseOrientation = baseOrientation
         self.fixed_base = fixed_base
-
+        
     def reset(self, bullet_client):
         self._p = bullet_client
         self.ordered_joints = []

@@ -29,6 +29,7 @@ class Scene:
 
     def actor_introduce(self, robot):
         "Usually after scene reset"
+        # print(" in abstract: %d" % robot.player_n)
         if not self.multiplayer: return
         self.multiplayer_robots[robot.player_n] = robot
 
