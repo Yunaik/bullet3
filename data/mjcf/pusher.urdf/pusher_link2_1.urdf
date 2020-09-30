@@ -1,0 +1,64 @@
+<?xml version="0.0" ?>
+<robot name="">
+	<link name="link2_1">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link2_2">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="link2_3">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="0.00000"/>
+			<inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+		</inertial>
+	</link>
+	<link name="object">
+		<inertial>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<mass value="1.30900"/>
+			<inertia ixx="0.00218" ixy="0" ixz="0" iyy="0.00218" iyz="0" izz="0.00218"/>
+		</inertial>
+		<collision>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<geometry>
+				<sphere radius="0.05000"/>
+			</geometry>
+		</collision>
+		<collision>
+			<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+			<geometry>
+				<cylinder length="0.10000" radius="0.05000"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="object_x" type="prismatic">
+		<parent link="link2_1"/>
+		<child link="link2_2"/>
+<limit effort="1000.0" lower="-0.50000" upper="0.50000" velocity="0.5"/>		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.45000 -0.05000 -0.27500"/>
+		<axis xyz="1.00000 0.00000 0.00000"/>
+	</joint>
+	<joint name="object_y" type="prismatic">
+		<parent link="link2_2"/>
+		<child link="link2_3"/>
+<limit effort="1000.0" lower="-0.50000" upper="0.50000" velocity="0.5"/>		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 1.00000 0.00000"/>
+	</joint>
+	<joint name="jointfix_10_3" type="fixed">
+		<parent link="link2_3"/>
+		<child link="object"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+		<axis xyz="0.00000 0.00000 0.00000"/>
+	</joint>
+</robot>

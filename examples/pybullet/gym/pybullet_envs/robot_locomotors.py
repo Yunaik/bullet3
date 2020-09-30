@@ -6,8 +6,8 @@ import pybullet_data
 from robot_bases import BodyPart
 
 class WalkerBaseURDF(URDFBasedRobot):
-    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, isPhysx=False):
-        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
+    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False):
+        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx)
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -164,21 +164,23 @@ class WalkerBase(MJCFBasedRobot):
         return - self.walk_target_dist / self.scene.dt
 
 
-class Hopper(WalkerBase):
+class Hopper(WalkerBaseURDF):
     foot_list = ["foot"]
 
-    def __init__(self):
-        WalkerBase.__init__(self, "hopper.xml", "torso", action_dim=3, obs_dim=15, power=0.75)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=15, power=0.75, self_collision=self_collision, 
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
 
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
 
-class Walker2D(WalkerBase):
+class Walker2D(WalkerBaseURDF):
     foot_list = ["foot", "foot_left"]
 
-    def __init__(self):
-        WalkerBase.__init__(self,  "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=22, power=0.40, self_collision=self_collision, 
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
 
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
@@ -189,11 +191,12 @@ class Walker2D(WalkerBase):
             self.jdict[n].power_coef = 30.0
 
 
-class HalfCheetah(WalkerBase):
+class HalfCheetah(WalkerBaseURDF):
     foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 
-    def __init__(self):
-        WalkerBase.__init__(self, "half_cheetah.xml", "torso", action_dim=6, obs_dim=26, power=0.90)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=26, power=0.90, self_collision=self_collision, 
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
 
     def alive_bonus(self, z, pitch):
         # Use contact other than feet to terminate episode: due to a lot of strange walks using knees
@@ -209,26 +212,23 @@ class HalfCheetah(WalkerBase):
         self.jdict["ffoot"].power_coef  = 30.0
 
 
-class Ant(WalkerBase):
+class Ant(WalkerBaseURDF):
     foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
-    def __init__(self):
-        WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=28, power=2.5, self_collision=self_collision, 
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
 
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
 
 
 class Humanoid(WalkerBaseURDF):
-# class Humanoid(WalkerBase):
-    self_collision = True
     foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
-    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False):
-        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, 
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
-        # WalkerBase.__init__(self,  'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41, player_n=player_n)
-        # 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
 
     def robot_specific_reset(self, bullet_client):
         # print("Hello1")
@@ -302,8 +302,8 @@ def get_sphere(_p, x, y, z):
     return BodyPart(_p, part_name, bodies, 0, -1)
 
 class HumanoidFlagrun(Humanoid):
-    def __init__(self):
-        Humanoid.__init__(self)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        Humanoid.__init__(self, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx,self_collision=self_collision)
         self.flag = None
         
     def robot_specific_reset(self, bullet_client):
@@ -337,8 +337,8 @@ class HumanoidFlagrun(Humanoid):
 
 
 class HumanoidFlagrunHarder(HumanoidFlagrun):
-    def __init__(self):
-        HumanoidFlagrun.__init__(self)
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+        HumanoidFlagrun.__init__(self, basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx,self_collision=self_collision)
         self.flag = None
         self.aggressive_cube = None
         self.frame = 0

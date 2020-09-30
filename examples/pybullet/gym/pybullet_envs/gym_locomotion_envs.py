@@ -15,6 +15,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         self.walk_target_y = 0
         self.stateId=-1
         self.isMultiplayer=isMultiplayer
+        # self._alive = True
 
     def create_scene(self, bullet_client):
         if self.isMultiplayer:
@@ -47,8 +48,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         return r
 
     def _isDone(self):
-        self._alive = float(self.robot.alive_bonus(self.state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
-
+        # print("ALIVE: %.3f" %self._alive )
         return self._alive < 0
 
     def move_robot(self, init_x, init_y, init_z):
@@ -129,6 +129,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
             done = True
 
     def get_observation(self):
+
         for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
             contact_ids = set((x[2], x[4]) for x in f.contact_list())
             #print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
@@ -139,6 +140,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
             # else:
             #     self.robot.feet_contact[i] = 0.0
         self.state = self.robot.calc_state()
+        self._alive = float(self.robot.alive_bonus(self.state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
         return self.robot.calc_state()  # also calculates self.joints_at_limit
 
     def camera_adjust(self):
@@ -147,31 +149,31 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         self.camera.move_and_look_at(self.camera_x, y-2.0, 1.4, x, y, 1.0)
 
 class HopperBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, render=False):
-        self.robot = Hopper()
-        WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = Hopper(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
 
 class Walker2DBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, render=False):
-        self.robot = Walker2D()
-        WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = Walker2D(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
 
 class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, render=False):
-        self.robot = HalfCheetah()
-        WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = HalfCheetah(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
 
     def _isDone(self):
         return False
 
 class AntBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, render=False):
-        self.robot = Ant()
-        WalkerBaseBulletEnv.__init__(self, self.robot, render)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = Ant(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False):
-        self.robot = Humanoid(basePosition=pos, fixed_base=True, isPhysx=isPhysx)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, robot=None):
+        self.robot = Humanoid(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision) if robot is None else robot
         # self.robot = Humanoid()
         WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
         self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
@@ -180,24 +182,24 @@ class HumanoidBulletEnv(WalkerBaseBulletEnv):
 class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
     random_yaw = True
 
-    def __init__(self, render=False):
-        self.robot = HumanoidFlagrun()
-        HumanoidBulletEnv.__init__(self, self.robot, render)
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = HumanoidFlagrun(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+        HumanoidBulletEnv.__init__(self, robot=self.robot, render=render, client=client)
 
     def create_single_player_scene(self, bullet_client):
-        s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
+        s = HumanoidBulletEnv.create_scene(self, bullet_client)
         s.zero_at_running_strip_start_line = False
         return s
 
 class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
     random_lean = True  # can fall on start
 
-    def __init__(self, render=False):
-        self.robot = HumanoidFlagrunHarder()
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = HumanoidFlagrunHarder(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision) if robot is None else robot
         self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
-        HumanoidBulletEnv.__init__(self, self.robot, render)
+        HumanoidBulletEnv.__init__(self, robot=self.robot, render=render, client=client)
 
     def create_single_player_scene(self, bullet_client):
-        s = HumanoidBulletEnv.create_single_player_scene(self, bullet_client)
+        s = HumanoidBulletEnv.create_scene(self, bullet_client)
         s.zero_at_running_strip_start_line = False
         return s
