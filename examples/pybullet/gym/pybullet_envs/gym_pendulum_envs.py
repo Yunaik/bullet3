@@ -14,10 +14,13 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
         # self.frame_skip = frame_skip
         self.robot = InvertedPendulum(basePosition=pos, isPhysx=isPhysx)
         MJCFBaseBulletEnv.__init__(self, self.robot, client=client, render=render)
+        self.timestep = 0.01
+        self.frame_skip = 5
+
         self.stateId=-1
 
     def create_scene(self, bullet_client):
-        return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=0.0165, frame_skip=1)
+        return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=self.timestep, frame_skip=self.frame_skip)
 
     def reset(self):
         # if (self.stateId>=0):
@@ -70,9 +73,13 @@ class InvertedDoublePendulumBulletEnv(MJCFBaseBulletEnv):
     def __init__(self, client,render=False, pos = [0,0,0], isPhysx=False):
         self.robot = InvertedDoublePendulum(basePosition=pos, isPhysx=isPhysx)
         MJCFBaseBulletEnv.__init__(self, self.robot, client=client, render=render)
-        self.stateId = -1
+        self.timestep = 0.01
+        self.frame_skip = 5
+
+        self.stateId=-1
+
     def create_scene(self, bullet_client):
-        return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=0.0165, frame_skip=1)
+        return SingleRobotEmptyScene(bullet_client, gravity=9.8, timestep=self.timestep, frame_skip=self.frame_skip)
 
     def reset(self):
         # if (self.stateId>=0):

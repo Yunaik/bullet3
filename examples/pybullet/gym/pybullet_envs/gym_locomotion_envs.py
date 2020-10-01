@@ -8,7 +8,9 @@ from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, Human
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     def __init__(self, robot, render=False, client=None, isMultiplayer=True):
         # print("WalkerBase::__init__ start")
-        MJCFBaseBulletEnv.__init__(self, robot, render, client=client)
+        self.timestep = 0.01
+        self.frame_skip = 5
+        MJCFBaseBulletEnv.__init__(self, robot, render, client=client, timestep=self.timestep, frame_skip=self.frame_skip)
 
         self.camera_x = 0
         self.walk_target_x = 1e3  # kilometer away
@@ -19,9 +21,9 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
     def create_scene(self, bullet_client):
         if self.isMultiplayer:
-            self.stadium_scene = SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=0.0165/4, frame_skip=4)
+            self.stadium_scene = SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=self.timestep, frame_skip=self.frame_skip)
         else:
-            self.stadium_scene = MultiplayerStadiumScene(bullet_client, gravity=9.8, timestep=0.0165/4, frame_skip=4)
+            self.stadium_scene = MultiplayerStadiumScene(bullet_client, gravity=9.8, timestep=self.timestep, frame_skip=self.frame_skip)
         return self.stadium_scene
 
     def reset(self):

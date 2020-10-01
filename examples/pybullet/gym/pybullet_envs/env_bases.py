@@ -17,7 +17,7 @@ class MJCFBaseBulletEnv(gym.Env):
         'video.frames_per_second': 60
         }
 
-    def __init__(self, robot, render=False, client=None):
+    def __init__(self, robot, render=False, client=None, timestep=0.01, frame_skip=5):
         self.scene = None
         if client is None:
             self.physicsClientId = -1
@@ -38,7 +38,8 @@ class MJCFBaseBulletEnv(gym.Env):
 
         self.action_space = robot.action_space
         self.observation_space = robot.observation_space
-
+        self.timestep = timestep
+        self.frame_skip = frame_skip
     def configure(self, args):
         self.robot.args = args
 
