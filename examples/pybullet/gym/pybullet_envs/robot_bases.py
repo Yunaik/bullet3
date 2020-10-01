@@ -192,7 +192,7 @@ class URDFBasedRobot(XmlBasedRobot):
         else:
             print("Loading from robot setup")
             objects = self.robot_setup["objects"]
-            print("objects: ", objects)
+            # print("objects: ", objects)
             self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_setup["objects"])
 
             # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot_setup["parts"], self.robot_setup["jdict"], self.robot_setup["ordered_joints"], self.robot_setup["robot_body"]

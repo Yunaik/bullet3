@@ -22,10 +22,10 @@ class WalkerBaseURDF(URDFBasedRobot):
         for j in self.ordered_joints:
             j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
         
-        print("Foot list: ", self.foot_list)
-        print("parts: ", self.parts)
+        # print("Foot list: ", self.foot_list)
+        # print("parts: ", self.parts)
         self.feet = [self.parts[f] for f in self.foot_list]
-        print("Feet: ", self.feet)
+        # print("Feet: ", self.feet)
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
         self.scene.actor_introduce(self)
         self.initial_z = None
@@ -79,6 +79,7 @@ class WalkerBaseURDF(URDFBasedRobot):
             np.sin(angle_to_target), np.cos(angle_to_target),
             0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
             r, p], dtype=np.float32)
+        # print("Feet contact: ", self.feet_contact)
         return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5)
 
     def calc_potential(self):
