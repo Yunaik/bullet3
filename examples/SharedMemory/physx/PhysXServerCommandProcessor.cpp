@@ -814,7 +814,7 @@ bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct Sh
 		{
 			if (m_data->m_verboseOutput)
 			{
-				b3Printf("Using CONTROL_MODE_VELOCITY");
+				b3Printf("Using CONTROL_MODE_POSITION_VELOCITY_PD");
 			}
 
 			int numMotors = 0;

@@ -50,7 +50,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         return r
 
     def _isDone(self):
-        # print("ALIVE: %.3f" %self._alive )
+        # print("ALIVE: %.3f" % self._alive )
         return self._alive < 0
 
     # def move_robot(self, init_x, init_y, init_z):
@@ -130,7 +130,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         if not np.isfinite(self.state).all():
             print("~INF~", self.state)
             done = True
-
+        return done
     def get_observation(self):
 
         for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
@@ -144,6 +144,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
             #     self.robot.feet_contact[i] = 0.0
         self.state = self.robot.calc_state()
         self._alive = float(self.robot.alive_bonus(self.state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
+        # print("ALive: ", self._alive)
         return self.robot.calc_state()  # also calculates self.joints_at_limit
 
     def camera_adjust(self):

@@ -4,10 +4,16 @@ import pybullet
 import os
 import pybullet_data
 from robot_bases import BodyPart
+import gym
 
 class WalkerBaseURDF(URDFBasedRobot):
-    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False, robot_setup=None):
-        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
+    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, 
+                player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], 
+                self_collision=False, fixed_base=False, isPhysx=False, robot_setup=None):
+        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, 
+                                basePosition=basePosition, baseOrientation=baseOrientation, 
+                                self_collision=self_collision, fixed_base=fixed_base, 
+                                isPhysx=isPhysx, robot_setup=robot_setup)
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -15,17 +21,28 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.walk_target_y = 0
         self.body_xyz=[0,0,0]
         self.player_n = player_n
+        self.joint_limits = {}
 
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
-        # print("Ordered joints: ", self.ordered_joints)
         for j in self.ordered_joints:
             j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
+            j.maxForce = self.power * j.power_coef
+            # print("Joint name: %s" % j.joint_name)
+            if self.joint_limits:
+                j.lowerLimit = self.joint_limits[j.joint_name][0]*3.14/180.
+                j.upperLimit = self.joint_limits[j.joint_name][1]*3.14/180.
+            # print("MAX FORCE: %.2f. Joint limit: [%.2f, %.2f]" % (j.maxForce, self.joint_limits[j.joint_name][0], self.joint_limits[j.joint_name][1]))
+        limit_low = []
+        limit_high = []
+        for joint in self.ordered_joints:
+            name = joint.joint_name
+            limit_low.append(self.joint_limits[name][0])
+            limit_high.append(self.joint_limits[name][1])
+
+        self.action_space = gym.spaces.Box(np.array(limit_low)*3.14/180., np.array(limit_high)*3.14/180.)
         
-        # print("Foot list: ", self.foot_list)
-        # print("parts: ", self.parts)
         self.feet = [self.parts[f] for f in self.foot_list]
-        # print("Feet: ", self.feet)
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
         self.scene.actor_introduce(self)
         self.initial_z = None
@@ -40,7 +57,9 @@ class WalkerBaseURDF(URDFBasedRobot):
             # j.set_position(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
             # print("a[n]: ", a[n])
             # a[n] = float(np.clip(a[n], j.lowerLimit, j.upperLimit))
+            # j.set_velocity(a[n])
             j.set_position(a[n])
+            
             # print("J lower: %.2f, j upper: %.2f" % (j.lowerLimit, j.upperLimit))
             # j.set_velocity(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
         # print("Action: ", self.action)
@@ -249,8 +268,17 @@ class Ant(WalkerBaseURDF):
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False, robot_setup=None):
         WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=28, power=2.5, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
+        self.joint_limits = {"hip_1": [-40, 40],
+                            "ankle_1": [30 ,100],
+                            "hip_2": [-40, 40],
+                            "ankle_2": [-100 ,-30],
+                            "hip_3": [-40, 40],
+                            "ankle_3": [-100 ,-30],
+                            "hip_4": [-40, 40],
+                            "ankle_4": [30 ,100],}
 
     def alive_bonus(self, z, pitch):
+        # print("Alive: %d, z: %.2f, pitch: %.2f" % (z > 0.26, z, pitch*180/3.14))
         return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
 
 

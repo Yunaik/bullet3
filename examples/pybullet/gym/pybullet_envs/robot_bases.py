@@ -170,7 +170,7 @@ class URDFBasedRobot(XmlBasedRobot):
         # print("Robot parts before in reset before resetting ", self.parts)
         self._p = bullet_client
 
-        print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
+        # print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
         if self.robot_setup is None:
             if self.robot_model is None:
                 if self.self_collision:
@@ -187,15 +187,17 @@ class URDFBasedRobot(XmlBasedRobot):
                 self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_model)
                 # print("Generated")
             else:
-                pass
+                self._p.resetBasePositionAndOrientation(self.robot_model,self.basePosition, self.baseOrientation)
+                # pass
                 # print("Pass")
         else:
             print("Loading from robot setup")
-            objects = self.robot_setup["objects"]
-            # print("objects: ", objects)
-            self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_setup["objects"])
+            assert 3==5
+            # objects = self.robot_setup["objects"]
+            # # print("objects: ", objects)
+            # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_setup["objects"])
 
-            # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot_setup["parts"], self.robot_setup["jdict"], self.robot_setup["ordered_joints"], self.robot_setup["robot_body"]
+            # # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot_setup["parts"], self.robot_setup["jdict"], self.robot_setup["ordered_joints"], self.robot_setup["robot_body"]
             # print("MADE================")
         # print("self.ordered_joints: ", self.ordered_joints)
         self.robot_specific_reset(self._p)
@@ -310,12 +312,16 @@ class BodyPart:
 
 
 class Joint:
-    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx):
+    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx, Kp=100, Kd=1, maxVelocity=0.01, maxForce=30):
         self.bodies = bodies
         self._p = bullet_client
         self.bodyIndex = bodyIndex
         self.jointIndex = jointIndex
         self.joint_name = joint_name
+        self.Kp = Kp
+        self.Kd = Kd
+        self.maxVelocity = maxVelocity
+        self.maxForce = maxForce
         getJointInfo = self._p.getJointInfoPhysX if isPhysx else self._p.getJointInfo
         jointInfo = getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
         # print("JOINT INFO: ", jointInfo)
@@ -364,10 +370,11 @@ class Joint:
         return vx
 
     def set_position(self, position):
-        self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, targetPosition=position)
+        self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
+                    targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd, maxVelocity=self.maxVelocity, force=self.maxForce)
 
     def set_velocity(self, velocity):
-        self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.VELOCITY_CONTROL, targetVelocity=velocity)
+        self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.VELOCITY_CONTROL, targetVelocity=velocity, positionGain=self.Kp, velocityGain=self.Kd)
 
     def set_motor_torque(self, torque): # just some synonyme method
         self.set_torque(torque)
