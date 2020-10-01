@@ -115,7 +115,6 @@ struct PhysXServerCommandProcessorInternalData : public physx::PxSimulationEvent
 
 	btAlignedObjectArray<b3ContactPointData> m_contactPoints;
 	
-	
 
 	void onContactModify(physx::PxContactModifyPair* const pairs, physx::PxU32 count)
 	{
@@ -1504,7 +1503,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 
-#if 0
+#if 0 // not working
 	case CMD_SET_VR_CAMERA_STATE:
 		{
 			hasStatus = processSetVRCameraStateCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -1549,12 +1548,8 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			hasStatus = processSaveWorldCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_LOAD_SDF:
-		{
-			hasStatus = processLoadSDFCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	
+
+
 	case CMD_CREATE_VISUAL_SHAPE:
 		{
 			hasStatus = processCreateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -1567,12 +1562,6 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 		}
 	
 	
-	case CMD_LOAD_MJCF:
-	{
-		hasStatus = processLoadMJCFCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-
 	case CMD_LOAD_SOFT_BODY:
 		{
 			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -1756,9 +1745,12 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 #endif
 
 	default:
-	{
+	{   
+        // printf("CMD_CONFIGURE_OPENGL_VISUALIZER: %d", CMD_CONFIGURE_OPENGL_VISUALIZER);
+        // printf("CMD_STATE_LOGGING: %d", CMD_STATE_LOGGING);
+        
 		BT_PROFILE("CMD_UNKNOWN");
-		printf("Unknown command encountered: %d", clientCmd.m_type);
+		printf("In physx: Unknown command encountered: %d", clientCmd.m_type);
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverCmd.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
 		hasStatus = true;

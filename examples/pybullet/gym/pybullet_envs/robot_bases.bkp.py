@@ -6,7 +6,6 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 os.sys.path.insert(0,parentdir)
 import pybullet_data
-# from pybullet_envs.bullet import bullet_client as bc
 
 
 class XmlBasedRobot:
@@ -127,18 +126,14 @@ class MJCFBasedRobot(XmlBasedRobot):
         if (self.doneLoading==0):
             self.ordered_joints = []
             self.doneLoading=1
-
-            # _pybullet_client = bc.BulletClient(
-                # connection_mode = pybullet.DIRECT)
-
             if self.self_collision:
                 # self._p = bullet_client.BulletClient()
                 # print("Loading xml: ", self.model_xml)
-                self.objects = self._p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), 
+                self.objects = pybullet.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), 
                                                             flags=pybullet.URDF_USE_SELF_COLLISION|pybullet.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
                 self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, self.objects)
             else:
-                self.objects = self._p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml))
+                self.objects = pybullet.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml))
                 self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, self.objects)
         # print("Objects: ", self.objects)
         self.robot_specific_reset(self._p)

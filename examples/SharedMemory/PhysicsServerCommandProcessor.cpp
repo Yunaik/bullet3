@@ -3247,6 +3247,7 @@ struct MyMJCFLogger2 : public MJCFErrorLogger
 
 bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags)
 {
+    printf("in loadmjcf");
 	btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
 	{
@@ -10900,7 +10901,8 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 }
 
 bool PhysicsServerCommandProcessor::processLoadMJCFCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
-{
+{   
+    printf("IN HERE3");
 	bool hasStatus = true;
 
 	BT_PROFILE("CMD_LOAD_MJCF");
@@ -10917,8 +10919,10 @@ bool PhysicsServerCommandProcessor::processLoadMJCFCommand(const struct SharedMe
 	{
 		flags |= clientCmd.m_mjcfArguments.m_flags;
 	}
-
+    printf("IN HERE");
 	bool completedOk = loadMjcf(mjcfArgs.m_mjcfFileName, bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
+    printf("After loaded");
+
 	if (completedOk)
 	{
 		m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
@@ -11278,6 +11282,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		}
 		case CMD_LOAD_MJCF:
 		{
+            printf("IN HERE1");
 			hasStatus = processLoadMJCFCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 			break;
 		}

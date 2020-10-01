@@ -602,6 +602,7 @@ else:
     CXX_FLAGS += '-I/usr/X11R6/include '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once'
+    CXX_FLAGS += '-w '
     sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["src/PhysXFoundationUnix.cpp"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\

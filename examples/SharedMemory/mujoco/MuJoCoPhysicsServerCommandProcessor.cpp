@@ -91,7 +91,8 @@ bool MuJoCoPhysicsServerCommandProcessor::isConnected() const
 }
 
 bool MuJoCoPhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
-{
+{   
+    printf("Mujoco 2\n");
 	//	BT_PROFILE("processCommand");
 
 	int sz = sizeof(SharedMemoryStatus);
@@ -501,6 +502,7 @@ bool MuJoCoPhysicsServerCommandProcessor::processSyncUserDataCommand(const struc
 
 bool MuJoCoPhysicsServerCommandProcessor::processLoadMJCFCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+    printf("The mujoco one\n");
 	bool hasStatus = true;
 
 	BT_PROFILE("CMD_LOAD_MJCF");

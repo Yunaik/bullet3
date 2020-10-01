@@ -2,11 +2,11 @@ from .scene_stadium import SinglePlayerStadiumScene, MultiplayerStadiumScene
 from .env_bases import MJCFBaseBulletEnv
 import numpy as np
 import pybullet
-from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
+from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, AntMJC, AntMJC_physx, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
 
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
-    def __init__(self, robot, render=False, client=None, isMultiplayer=True):
+    def __init__(self, robot, render=False, client=None, isMultiplayer=False):
         # print("WalkerBase::__init__ start")
         self.timestep = 0.01
         self.frame_skip = 5
@@ -82,7 +82,6 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # return self.state, sum(self.rewards), bool(done), {}
 
     def getReward(self):
-        # print("robot actioN: ", self.robot.action)
         potential_old = self.potential
         self.potential = self.robot.calc_potential()
         progress = float(self.potential - potential_old)
@@ -90,6 +89,8 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         feet_collision_cost = 0.0
 
 
+        # print("robot actioN: ", self.robot.action)
+        # print("joitn speeds: ", self.robot.joint_speeds)
         electricity_cost  = self.electricity_cost  * float(np.abs(self.robot.action*self.robot.joint_speeds).mean())  # let's assume we have DC motor with controller, and reverse current braking
         electricity_cost += self.stall_torque_cost * float(np.square(self.robot.action).mean())
 
@@ -168,9 +169,22 @@ class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
     def _isDone(self):
         return False
 
+class AntBulletEnvMJC(WalkerBaseBulletEnv):
+
+  def __init__(self, render=False):
+    self.robot = AntMJC()
+    WalkerBaseBulletEnv.__init__(self, self.robot, render)
+
+class AntBulletEnvMJC_physx(WalkerBaseBulletEnv):
+
+  def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+    self.robot = AntMJC_physx(isPhysx=isPhysx, self_collision=self_collision)
+    WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+
+
 class AntBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
-        self.robot = Ant(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
+    def __init__(self, client, robot_setup=None, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+        self.robot = Ant(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision, robot_setup=robot_setup)
         WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):

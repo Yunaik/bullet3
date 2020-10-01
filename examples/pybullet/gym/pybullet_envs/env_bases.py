@@ -51,7 +51,7 @@ class MJCFBaseBulletEnv(gym.Env):
     def reset(self):
         # print("HERE1")
         if (self.physicsClientId<0):
-            assert 3 == 4
+            print("OVERWRITING BULLETCLIENT AS BC wasn't passed")
             self.ownsPhysicsClient = True
 
             if self.isRender:
@@ -64,8 +64,14 @@ class MJCFBaseBulletEnv(gym.Env):
 
         if self.scene is None:
             self.scene = self.create_scene(self._p)
+            # print("Created scene")
+        else:
+            # print("Scene exists")
+            pass
         if not self.scene.multiplayer and self.ownsPhysicsClient:
+            # print("Scene restart")
             self.scene.episode_restart(self._p)
+
         # print("HERE2")
 
         self.robot.scene = self.scene
@@ -76,7 +82,8 @@ class MJCFBaseBulletEnv(gym.Env):
         self.reward = 0
         dump = 0
         # print("HERE4")
-
+        # print("Robot resetting")
+        # print("Robot parts before rest: ", self.robot.parts)
         s = self.robot.reset(self._p)
         # print("HERE5")
 

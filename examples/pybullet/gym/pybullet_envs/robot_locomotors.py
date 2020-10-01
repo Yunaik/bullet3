@@ -6,8 +6,8 @@ import pybullet_data
 from robot_bases import BodyPart
 
 class WalkerBaseURDF(URDFBasedRobot):
-    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False):
-        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx)
+    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False, robot_setup=None):
+        URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -18,22 +18,33 @@ class WalkerBaseURDF(URDFBasedRobot):
 
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
-        # print("jklasfjklasdjf")
+        # print("Ordered joints: ", self.ordered_joints)
         for j in self.ordered_joints:
             j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
-        # print("parts: ", self.parts)
-
+        
+        print("Foot list: ", self.foot_list)
+        print("parts: ", self.parts)
         self.feet = [self.parts[f] for f in self.foot_list]
+        print("Feet: ", self.feet)
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
         self.scene.actor_introduce(self)
         self.initial_z = None
 
     def apply_action(self, a):
-
+        # print("A raw: ", a)
         self.action = a
         assert (np.isfinite(a).all())
         for n, j in enumerate(self.ordered_joints):
-            j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+            # print("Power: ", self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+            # j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+            # j.set_position(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+            # print("a[n]: ", a[n])
+            # a[n] = float(np.clip(a[n], j.lowerLimit, j.upperLimit))
+            j.set_position(a[n])
+            # print("J lower: %.2f, j upper: %.2f" % (j.lowerLimit, j.upperLimit))
+            # j.set_velocity(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+        # print("Action: ", self.action)
+        # print("Action applied: ", a)
 
     def calc_state(self):
         j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
@@ -86,8 +97,8 @@ class WalkerBaseURDF(URDFBasedRobot):
         return - self.walk_target_dist / self.scene.dt
 
 class WalkerBase(MJCFBasedRobot):
-    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0):
-        MJCFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim)
+    def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, isPhysx=False):
+        MJCFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, isPhysx=isPhysx)
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -212,12 +223,31 @@ class HalfCheetah(WalkerBaseURDF):
         self.jdict["ffoot"].power_coef  = 30.0
 
 
+class AntMJC(WalkerBase):
+  foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
+
+  def __init__(self):
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5)
+
+  def alive_bonus(self, z, pitch):
+    return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
+
+class AntMJC_physx(WalkerBase):
+  foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
+
+  def __init__(self, isPhysx=False,self_collision=False):
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5, isPhysx=isPhysx)
+
+  def alive_bonus(self, z, pitch):
+    return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
+
+
 class Ant(WalkerBaseURDF):
     foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
-    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
+    def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False, robot_setup=None):
         WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=28, power=2.5, self_collision=self_collision, 
-                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
+                            basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
 
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
