@@ -9,7 +9,7 @@ import gym
 class WalkerBaseURDF(URDFBasedRobot):
     def __init__(self,  fn, robot_name, action_dim, obs_dim, power, 
                 player_n=0, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], 
-                self_collision=False, fixed_base=False, isPhysx=False, robot_setup=None):
+                self_collision=False, fixed_base=False, isPhysx=False, robot_setup=None, random_init=True):
         URDFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, 
                                 basePosition=basePosition, baseOrientation=baseOrientation, 
                                 self_collision=self_collision, fixed_base=fixed_base, 
@@ -22,21 +22,10 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.body_xyz=[0,0,0]
         self.player_n = player_n
         self.joint_limits = {}
-
+        self.random_init = random_init
     def robot_specific_reset(self, bullet_client):
         # print("RESET")
         self._p = bullet_client
-        for j in self.ordered_joints:
-            j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
-            j.maxForce = self.power * j.power_coef
-            # print("Power coeff: ", j.power_coef)
-            j.set_PD_gains(j.maxForce)
-            # print("Max force: ", j.maxForce)
-            # print("Joint name: %s" % j.joint_name)
-            if self.joint_limits:
-                j.lowerLimit = self.joint_limits[j.joint_name][0]*3.14/180.
-                j.upperLimit = self.joint_limits[j.joint_name][1]*3.14/180.
-            # print("MAX FORCE: %.2f. Kp: %.1f, Kd: %.1f, Joint limit: [%.2f, %.2f]" % (j.maxForce, j.Kp, j.Kd, self.joint_limits[j.joint_name][0], self.joint_limits[j.joint_name][1]))
         limit_low = []
         limit_high = []
         for joint in self.ordered_joints:
@@ -46,6 +35,19 @@ class WalkerBaseURDF(URDFBasedRobot):
 
         self.action_space = gym.spaces.Box(np.array(limit_low)*3.14/180., np.array(limit_high)*3.14/180.)
         
+        start_config = self.action_space.sample() if self.random_init else [0,3.14/2,0,-3.14/2,0,-3.14/2,0,3.14/2]
+        for idx, j in enumerate(self.ordered_joints):
+            j.reset_current_position(start_config[idx], 0)
+            j.maxForce = self.power * j.power_coef
+            # print("Power coeff: ", j.power_coef)
+            j.set_PD_gains(j.maxForce)
+            # print("Max force: ", j.maxForce)
+            # print("Joint name: %s" % j.joint_name)
+            if self.joint_limits:
+                j.lowerLimit = self.joint_limits[j.joint_name][0]*3.14/180.
+                j.upperLimit = self.joint_limits[j.joint_name][1]*3.14/180.
+            # print("MAX FORCE: %.2f. Kp: %.1f, Kd: %.1f, Joint limit: [%.2f, %.2f]" % (j.maxForce, j.Kp, j.Kd, self.joint_limits[j.joint_name][0], self.joint_limits[j.joint_name][1]))
+
         self.feet = [self.parts[f] for f in self.foot_list]
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
         self.scene.actor_introduce(self)
