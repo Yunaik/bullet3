@@ -67,16 +67,21 @@ class WalkerBaseURDF(URDFBasedRobot):
 
     def calc_state(self):
         j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
+        self.joint_position = j
         # even elements [0::2] position, scaled to -1..+1 between limits
         # odd elements  [1::2] angular speed, scaled to show -1..+1
         self.joint_speeds = j[1::2]
         self.joints_at_limit = np.count_nonzero(np.abs(j[0::2]) > 0.99)
 
         body_pose = self.robot_body.pose()
+        # print("Body pos: ", body_pose)
         parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
         self.body_xyz = (
         parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2])  # torso z is more informative than mean z
         self.body_rpy = body_pose.rpy()
+        # print("body rpy: ", self.body_rpy)
+        # print("Body xyz: ", self.body_xyz)
+
         z = self.body_xyz[2]
         if self.initial_z == None:
             self.initial_z = z
@@ -278,8 +283,10 @@ class Ant(WalkerBaseURDF):
                             "ankle_4": [30 ,100],}
 
     def alive_bonus(self, z, pitch):
+        alive_reward = 1 if ( z > 0.26 and (abs(pitch) < 45*3.14/180)) else -1
+        # if alive_reward == -1:
         # print("Alive: %d, z: %.2f, pitch: %.2f" % (z > 0.26, z, pitch*180/3.14))
-        return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
+        return alive_reward  # 0.25 is central sphere rad, die if it scrapes the ground
 
 
 class Humanoid(WalkerBaseURDF):

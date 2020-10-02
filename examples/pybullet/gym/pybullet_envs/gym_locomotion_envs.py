@@ -133,15 +133,15 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         return done
     def get_observation(self):
 
-        for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
-            contact_ids = set((x[2], x[4]) for x in f.contact_list())
+        # for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
+            # contact_ids = set((x[2], x[4]) for x in f.contact_list())
             #print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
             # if (self.ground_ids & contact_ids):
-                            #see Issue 63: https://github.com/openai/roboschool/issues/63
-                #feet_collision_cost += self.foot_collision_cost
-            #     self.robot.feet_contact[i] = 1.0
+                            # see Issue 63: https://github.com/openai/roboschool/issues/63
+                # feet_collision_cost += self.foot_collision_cost
+                # self.robot.feet_contact[i] = 1.0
             # else:
-            #     self.robot.feet_contact[i] = 0.0
+                # self.robot.feet_contact[i] = 0.0
         self.state = self.robot.calc_state()
         self._alive = float(self.robot.alive_bonus(self.state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
         # print("ALive: ", self._alive)

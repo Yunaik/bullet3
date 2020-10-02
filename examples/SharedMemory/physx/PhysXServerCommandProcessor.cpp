@@ -1746,7 +1746,7 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 
 	default:
 	{   
-        // printf("CMD_CONFIGURE_OPENGL_VISUALIZER: %d", CMD_CONFIGURE_OPENGL_VISUALIZER);
+        printf("\nIf command type is %d, it's CMD_CONFIGURE_OPENGL_VISUALIZER. Safely ignore as it's not implemented. Otherwise check in PhysXServerCommandProcessor.cpp whether the command was commented out in #if 0\n", CMD_CONFIGURE_OPENGL_VISUALIZER);
         // printf("CMD_STATE_LOGGING: %d", CMD_STATE_LOGGING);
         
 		BT_PROFILE("CMD_UNKNOWN");

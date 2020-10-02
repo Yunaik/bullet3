@@ -312,7 +312,7 @@ class BodyPart:
 
 
 class Joint:
-    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx, Kp=100, Kd=1, maxVelocity=0.01, maxForce=30):
+    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx, Kp=100, Kd=1, maxVelocity=1.0, maxForce=30):
         self.bodies = bodies
         self._p = bullet_client
         self.bodyIndex = bodyIndex
@@ -327,7 +327,7 @@ class Joint:
         # print("JOINT INFO: ", jointInfo)
         self.lowerLimit = jointInfo[8]
         self.upperLimit = jointInfo[9]
-
+        self.isPhysx = isPhysx
         self.power_coeff = 0
 
     def set_state(self, x, vx):
@@ -336,22 +336,22 @@ class Joint:
     def current_position(self): # just some synonyme method
         return self.get_state()
 
-    # def current_relative_position(self):
-    #     pos, vel = self.get_state()
-    #     pos_mid = 0.5 * (self.lowerLimit + self.upperLimit);
-    #     print("upper: ", self.upperLimit, "lowerlimit: ", self.lowerLimit)
-
-    #     return (
-    #         2 * (pos - pos_mid) / (self.upperLimit - self.lowerLimit),
-    #         0.1 * vel
-    #     )
     def current_relative_position(self):
         pos, vel = self.get_state()
+        pos_mid = 0.5 * (self.lowerLimit + self.upperLimit);
+        # print("upper: ", self.upperLimit, "lowerlimit: ", self.lowerLimit)
 
         return (
-            pos,
+            2 * (pos - pos_mid) / (self.upperLimit - self.lowerLimit),
             0.1 * vel
         )
+    # def current_relative_position(self):
+    #     pos, vel = self.get_state()
+
+    #     return (
+    #         pos,
+    #         0.1 * vel
+    #     )
 
     def get_state(self):
         x, vx,_,_ = self._p.getJointState(self.bodies[self.bodyIndex],self.jointIndex)
@@ -370,9 +370,13 @@ class Joint:
         return vx
 
     def set_position(self, position):
-        self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
-                    targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd, maxVelocity=self.maxVelocity, force=self.maxForce)
-
+        if self.isPhysx:
+            self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
+                        # targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd)
+                        targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd, maxVelocity=self.maxVelocity, force=self.maxForce)
+        else:
+            self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
+                        targetPosition=position)
     def set_velocity(self, velocity):
         self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.VELOCITY_CONTROL, targetVelocity=velocity, positionGain=self.Kp, velocityGain=self.Kd)
 
