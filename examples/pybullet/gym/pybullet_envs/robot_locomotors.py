@@ -103,7 +103,7 @@ class WalkerBaseURDF(URDFBasedRobot):
         )
         vx, vy, vz = np.dot(rot_speed, self.robot_body.speed())  # rotate speed back to body point of view
 
-        more = np.array([ z-self.initial_z, r, p, 
+        more = np.array([ z-self.initial_z,
             np.sin(angle_to_target), np.cos(angle_to_target),
             0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
             r, p], dtype=np.float32)
@@ -213,7 +213,7 @@ class Hopper(WalkerBaseURDF):
     foot_list = ["foot"]
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=13, power=0.75, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=14, power=0.75, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "thigh_joint":   [-150, 0],
@@ -249,7 +249,7 @@ class HalfCheetah(WalkerBaseURDF):
     foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=24, power=0.9, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=20, power=0.9, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "bthigh":    [-.52  * 180/3.14, 180/3.14* 1.05],
@@ -278,7 +278,7 @@ class AntMJC(WalkerBase):
   foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
   def __init__(self):
-    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=26, power=2.5)
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=24, power=2.5)
 
   def alive_bonus(self, z, pitch):
     return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
@@ -287,7 +287,7 @@ class AntMJC_physx(WalkerBase):
   foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
   def __init__(self, isPhysx=False,self_collision=False):
-    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=26, power=2.5, isPhysx=isPhysx)
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=24, power=2.5, isPhysx=isPhysx)
 
   def alive_bonus(self, z, pitch):
     return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
@@ -297,7 +297,7 @@ class Ant(WalkerBaseURDF):
     foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False, robot_setup=None):
-        WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=26, power=2.5, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=24, power=2.5, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
         self.joint_limits = {"hip_1": [-40, 40],
                             "ankle_1": [30 ,100],
