@@ -7,6 +7,12 @@ class InvertedPendulum(URDFBasedRobot):
         URDFBasedRobot.__init__(self, 'inverted_pendulum.urdf', 'cart', action_dim=1, obs_dim=5, basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx)
         # self.pos = basePosition
 
+
+        self.joint_limits = {
+            "hinge": [-90, 90], 
+        }
+
+
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
         
@@ -17,6 +23,7 @@ class InvertedPendulum(URDFBasedRobot):
         u = self.np_random.uniform(low=-.1, high=.1)
         self.j1.reset_current_position( u if not self.swingup else 3.1415+u , 0)
         self.j1.set_motor_torque(0)
+
         # print("Slider: ", self.slider)
         # print("Body: ", self.robot_body)
         # for key in self.parts.keys():
@@ -129,7 +136,10 @@ class InvertedDoublePendulum(URDFBasedRobot):
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False):
         URDFBasedRobot.__init__(self,  'inverted_double_pendulum.urdf', 'cart', action_dim=1, obs_dim=9, 
         basePosition=basePosition, baseOrientation=baseOrientation, self_collision=self_collision, fixed_base=fixed_base, isPhysx=isPhysx)
-
+        self.joint_limits = {
+            "hinge": [-359, 359], 
+            "hinge2": [-359, 359], 
+        }
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
         self.pole2 = self.parts["pole2"]

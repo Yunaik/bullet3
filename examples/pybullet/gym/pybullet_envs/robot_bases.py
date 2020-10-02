@@ -312,16 +312,17 @@ class BodyPart:
 
 
 class Joint:
-    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx, Kp=100, Kd=1, maxVelocity=1.0, maxForce=30):
+    def __init__(self, bullet_client, joint_name, bodies, bodyIndex, jointIndex, isPhysx, Kp=100, Kd=1, maxVelocity=10, maxForce=30):
         self.bodies = bodies
         self._p = bullet_client
         self.bodyIndex = bodyIndex
         self.jointIndex = jointIndex
         self.joint_name = joint_name
-        self.Kp = Kp
+        self.maxForce = maxForce 
+        self.Kp = Kp 
         self.Kd = Kd
+
         self.maxVelocity = maxVelocity
-        self.maxForce = maxForce
         getJointInfo = self._p.getJointInfoPhysX if isPhysx else self._p.getJointInfo
         jointInfo = getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
         # print("JOINT INFO: ", jointInfo)
@@ -329,6 +330,14 @@ class Joint:
         self.upperLimit = jointInfo[9]
         self.isPhysx = isPhysx
         self.power_coeff = 0
+
+    def set_PD_gains(self, maxForce):
+        max_error = 30*3.14/180
+        self.maxForce = maxForce 
+        self.Kp = self.maxForce/max_error
+
+        # print("Max force: %.2f, Kp: %.2f" % (maxForce, self.Kp))
+        self.Kd = self.Kp/100
 
     def set_state(self, x, vx):
         self._p.resetJointState(self.bodies[self.bodyIndex], self.jointIndex, x, vx)
@@ -371,6 +380,7 @@ class Joint:
 
     def set_position(self, position):
         if self.isPhysx:
+            # print("Pos: %.2f, Kp: %.2f, Kd: %.2f, maxVel: %.2f, force: %.2f" % (position, self.Kp, self.Kd, self.maxVelocity, self.maxForce))
             self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
                         # targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd)
                         targetPosition=position, positionGain=self.Kp, velocityGain=self.Kd, maxVelocity=self.maxVelocity, force=self.maxForce)
@@ -384,7 +394,12 @@ class Joint:
         self.set_torque(torque)
 
     def set_torque(self, torque):
-        self._p.setJointMotorControl2(bodyIndex=self.bodies[self.bodyIndex], jointIndex=self.jointIndex, controlMode=pybullet.TORQUE_CONTROL, force=torque) #, positionGain=0.1, velocityGain=0.1)
+        if self.isPhysx:
+            self._p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,pybullet.POSITION_CONTROL, 
+                        targetPosition=1+self.current_position()[0], positionGain=torque, velocityGain=0)
+            # print("Desired pos: %.2f, current pos: %.2f" % (1+self.current_position()[0], self.current_position()[0]))
+        else:
+            self._p.setJointMotorControl2(bodyIndex=self.bodies[self.bodyIndex], jointIndex=self.jointIndex, controlMode=pybullet.TORQUE_CONTROL, force=torque) #, positionGain=0.1, velocityGain=0.1)
 
     def reset_current_position(self, position, velocity): # just some synonyme method
         self.reset_position(position, velocity)

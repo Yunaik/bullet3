@@ -24,15 +24,19 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.joint_limits = {}
 
     def robot_specific_reset(self, bullet_client):
+        # print("RESET")
         self._p = bullet_client
         for j in self.ordered_joints:
             j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
             j.maxForce = self.power * j.power_coef
+            # print("Power coeff: ", j.power_coef)
+            j.set_PD_gains(j.maxForce)
+            # print("Max force: ", j.maxForce)
             # print("Joint name: %s" % j.joint_name)
             if self.joint_limits:
                 j.lowerLimit = self.joint_limits[j.joint_name][0]*3.14/180.
                 j.upperLimit = self.joint_limits[j.joint_name][1]*3.14/180.
-            # print("MAX FORCE: %.2f. Joint limit: [%.2f, %.2f]" % (j.maxForce, self.joint_limits[j.joint_name][0], self.joint_limits[j.joint_name][1]))
+            # print("MAX FORCE: %.2f. Kp: %.1f, Kd: %.1f, Joint limit: [%.2f, %.2f]" % (j.maxForce, j.Kp, j.Kd, self.joint_limits[j.joint_name][0], self.joint_limits[j.joint_name][1]))
         limit_low = []
         limit_high = []
         for joint in self.ordered_joints:
@@ -52,12 +56,8 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.action = a
         assert (np.isfinite(a).all())
         for n, j in enumerate(self.ordered_joints):
-            # print("Power: ", self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
-            # j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
-            # j.set_position(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
-            # print("a[n]: ", a[n])
-            # a[n] = float(np.clip(a[n], j.lowerLimit, j.upperLimit))
             # j.set_velocity(a[n])
+            # j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
             j.set_position(a[n])
             
             # print("J lower: %.2f, j upper: %.2f" % (j.lowerLimit, j.upperLimit))
@@ -206,7 +206,10 @@ class Hopper(WalkerBaseURDF):
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
         WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=15, power=0.75, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
-
+        self.joint_limits = {
+            "thigh_joint":   [-150, 0],
+            "leg_joint"  :   [-150, 0],
+            "foot_joint" :   [-45 ,45],}
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
@@ -217,12 +220,18 @@ class Walker2D(WalkerBaseURDF):
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
         WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=22, power=0.40, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
-
+        self.joint_limits = {
+            "thigh_joint":        [  -150, 0],
+            "leg_joint":          [  -150, 0],
+            "foot_joint":         [ -45 ,45],
+            "thigh_left_joint":   [  -150, 0],
+            "leg_left_joint":     [  -150, 0],
+            "foot_left_joint":    [  -45, 45],}
     def alive_bonus(self, z, pitch):
         return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
     def robot_specific_reset(self, bullet_client):
-        WalkerBase.robot_specific_reset(self, bullet_client)
+        WalkerBaseURDF.robot_specific_reset(self, bullet_client)
         for n in ["foot_joint", "foot_left_joint"]:
             self.jdict[n].power_coef = 30.0
 
@@ -231,15 +240,23 @@ class HalfCheetah(WalkerBaseURDF):
     foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=26, power=0.90, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=26, power=0.9, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
-
+        self.joint_limits = {
+            "bthigh":    [-.52  * 180/3.14, 180/3.14* 1.05],
+            "bshin" :    [-.785 * 180/3.14, 180/3.14* .785],
+            "bfoot" :    [-.4   * 180/3.14, 180/3.14*.785 ],
+            "fthigh":    [-1.5  * 180/3.14, 180/3.14* 0.8],
+            "fshin" :    [-1.2  * 180/3.14, 180/3.14* 1.1],
+            "ffoot" :    [-3.1  * 180/3.14, 180/3.14* -0.3],}
     def alive_bonus(self, z, pitch):
         # Use contact other than feet to terminate episode: due to a lot of strange walks using knees
         return +1 if np.abs(pitch) < 1.0 and not self.feet_contact[1] and not self.feet_contact[2] and not self.feet_contact[4] and not self.feet_contact[5] else -1
 
     def robot_specific_reset(self, bullet_client):
-        WalkerBase.robot_specific_reset(self, bullet_client)
+        # print("HI")
+        WalkerBaseURDF.robot_specific_reset(self, bullet_client)
+        # print("HI2")
         self.jdict["bthigh"].power_coef = 120.0
         self.jdict["bshin"].power_coef  = 90.0
         self.jdict["bfoot"].power_coef  = 60.0
@@ -295,9 +312,29 @@ class Humanoid(WalkerBaseURDF):
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
         WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
+        self.joint_limits = {
+            "right_knee":      [-160  , -2],
+            "left_knee":       [-160  , -2],
+            "abdomen_z":       [-45   , 45],
+            "abdomen_y":       [-75   , 30],
+            "abdomen_x":       [-35   , 35],
+            "right_hip_x":     [-25   , 5],
+            "right_hip_z":     [-60   , 35],
+            "right_hip_y":     [-120  , 20],
+            "left_hip_x":      [-25   , 5],
+            "left_hip_z":      [-60   , 35],
+            "left_hip_y":      [-120  , 20],
+            "right_elbow":     [-90   , 50],
+            "right_shoulder1": [-85, 60],
+            "right_shoulder2": [-85, 60],
+            "left_shoulder1":  [-60, 85],
+            "left_shoulder2":  [-60, 85],
+            "left_elbow":      [-90, 50],}
 
     def robot_specific_reset(self, bullet_client):
         # print("Hello1")
+        
+
         
 
         # WalkerBase.robot_specific_reset(self, bullet_client)
@@ -314,6 +351,8 @@ class Humanoid(WalkerBaseURDF):
         self.motor_names += ["left_shoulder1", "left_shoulder2", "left_elbow"]
         self.motor_power += [75, 75, 75]
         self.motors = [self.jdict[n] for n in self.motor_names]
+
+        self.motor_power_dict = dict(zip( self.motor_names, self.motor_power))
         if self.random_yaw:
             position = [0,0,0]
             orientation = [0,0,0]
@@ -335,15 +374,26 @@ class Humanoid(WalkerBaseURDF):
             self.robot_body.reset_orientation(orientation)
         self.initial_z = 0.8
 
+        for name in self.motor_names:
+            j = self.jdict[name]
+            j.maxForce = self.motor_power_dict[name]
+            # print("Power coeff: ", j.power_coef)
+            j.set_PD_gains(j.maxForce)
+
+
     random_yaw = False
     random_lean = False
 
     def apply_action(self, a):
         self.action = a
         assert( np.isfinite(a).all() )
-        force_gain = 1
-        for i, m, power in zip(range(17), self.motors, self.motor_power):
-            m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
+        for n, j in enumerate(self.ordered_joints):
+            # print("%s: " %j.joint_name)
+            j.set_position(a[n])
+        # force_gain = 1
+        # for i, m, power in zip(range(17), self.motors, self.motor_power):
+        
+            # m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
 
     def alive_bonus(self, z, pitch):
         return +2 if z > 0.78 else -1   # 2 here because 17 joints produce a lot of electricity cost just from policy noise, living must be better than dying
