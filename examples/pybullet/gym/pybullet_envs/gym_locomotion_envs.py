@@ -93,7 +93,9 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # print("joitn speeds: ", self.robot.joint_speeds)
         electricity_cost  = self.electricity_cost  * float(np.abs(self.robot.action*self.robot.joint_speeds).mean())  # let's assume we have DC motor with controller, and reverse current braking
         electricity_cost += self.stall_torque_cost * float(np.square(self.robot.action).mean())
-
+        # print("self.electricity_cost: ", self.electricity_cost)
+        # print("electricity_cost: ", electricity_cost)
+        # print("self.reward: ", self.reward)
         joints_at_limit_cost = float(self.joints_at_limit_cost * self.robot.joints_at_limit)
 
         debugmode=0
@@ -121,9 +123,9 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
             print(self.rewards)
             print("sum rewards")
             print(sum(self.rewards))
-        self.reward += sum(self.rewards)
-
-        return self.reward, {}
+        # self.reward += sum(self.rewards)
+        # print("Reward: ", sum(self.rewards))
+        return sum(self.rewards), {}
 
     def checkFall(self):
         done = self._isDone()
