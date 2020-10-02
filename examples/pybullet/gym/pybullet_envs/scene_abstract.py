@@ -57,23 +57,27 @@ class SingleRobotEmptyScene(Scene):
 
 class World:
 
-	def __init__(self, bullet_client, gravity, timestep, frame_skip):
-		self._p = bullet_client
-		self.gravity = gravity
-		self.timestep = timestep
-		self.frame_skip = frame_skip
-		self.numSolverIterations = 5
-		self.clean_everything()
-		
-		
-	def clean_everything(self):
-		#p.resetSimulation()
-		self._p.setGravity(0, 0, -self.gravity)
-		self._p.setDefaultContactERP(0.9)
-		#print("self.numSolverIterations=",self.numSolverIterations)
-		self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=self.numSolverIterations, numSubSteps=self.frame_skip)
+    def __init__(self, bullet_client, gravity, timestep, frame_skip):
+        self._p = bullet_client
+        self.gravity = gravity
+        self.timestep = timestep
+        self.frame_skip = frame_skip
+        self.numSolverIterations = 5
+        self.clean_everything()
+        
+        
+    def clean_everything(self):
+        #p.resetSimulation()
+        self._p.setGravity(0, 0, -self.gravity)
+        self._p.setDefaultContactERP(0.9)
+        #print("self.numSolverIterations=",self.numSolverIterations)
+        # self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=self.numSolverIterations, numSubSteps=self.frame_skip)
+        # self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=self.numSolverIterations)
+        self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep)
+        # self._p.setPhysicsEngineParameter(fixedTimeStep=self.timestep, numSolverIterations=1000)
+        print("Physics engine params parallel: ", self._p.getPhysicsEngineParameters())
 
-	def step(self, frame_skip):
-		self._p.stepSimulation()
+    def step(self, frame_skip):
+        self._p.stepSimulation()
 
 

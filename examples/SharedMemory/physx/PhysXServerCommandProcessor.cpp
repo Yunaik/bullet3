@@ -1275,7 +1275,8 @@ bool PhysXServerCommandProcessor::processRequestPhysicsSimulationParametersComma
 	serverCmd.m_simulationParameterResultArgs.m_jointFeedbackMode = 0;
 	
 	serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = 0;// m_data->m_numSimulationSubSteps;
-	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
+	serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = 0;
+    // printf("NUM SOLVER ITERATIONS: %d", m_data->m_dynamicsWorld->getSolverInfo().m_numIterations);
 	serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
 
 	serverCmd.m_simulationParameterResultArgs.m_solverResidualThreshold = 0;// m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold;
@@ -1503,246 +1504,246 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 			break;
 		}
 
-#if 0 // not working
-	case CMD_SET_VR_CAMERA_STATE:
-		{
-			hasStatus = processSetVRCameraStateCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_REQUEST_VR_EVENTS_DATA:
-		{
-			hasStatus = processRequestVREventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		};
-	case CMD_REQUEST_MOUSE_EVENTS_DATA:
-		{
-			hasStatus = processRequestMouseEventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		};
-	case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
-		{
-			hasStatus = processRequestKeyboardEventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		};
+// #if 0 // not working
+// 	case CMD_SET_VR_CAMERA_STATE:
+// 		{
+// 			hasStatus = processSetVRCameraStateCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_REQUEST_VR_EVENTS_DATA:
+// 		{
+// 			hasStatus = processRequestVREventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		};
+// 	case CMD_REQUEST_MOUSE_EVENTS_DATA:
+// 		{
+// 			hasStatus = processRequestMouseEventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		};
+// 	case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
+// 		{
+// 			hasStatus = processRequestKeyboardEventsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		};
 
-	case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
-		{
+// 	case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
+// 		{
 
-			hasStatus = processRequestRaycastIntersectionsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		};
-	case CMD_REQUEST_DEBUG_LINES:
-		{
-			hasStatus = processRequestDebugLinesCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-
-	
-	case CMD_REQUEST_BODY_INFO:
-		{
-			hasStatus = processRequestBodyInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_SAVE_WORLD:
-		{
-			hasStatus = processSaveWorldCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-
-
-	case CMD_CREATE_VISUAL_SHAPE:
-		{
-			hasStatus = processCreateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CREATE_MULTI_BODY:
-		{
-			hasStatus = processCreateMultiBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	
-	
-	case CMD_LOAD_SOFT_BODY:
-		{
-			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CREATE_SENSOR:
-		{
-			hasStatus = processCreateSensorCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_PROFILE_TIMING:
-		{
-			hasStatus = processProfileTimingCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+// 			hasStatus = processRequestRaycastIntersectionsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		};
+// 	case CMD_REQUEST_DEBUG_LINES:
+// 		{
+// 			hasStatus = processRequestDebugLinesCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
 
 	
-	case CMD_REQUEST_COLLISION_INFO:
-		{
-			hasStatus = processRequestCollisionInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
+// 	case CMD_REQUEST_BODY_INFO:
+// 		{
+// 			hasStatus = processRequestBodyInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_SAVE_WORLD:
+// 		{
+// 			hasStatus = processSaveWorldCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+
+
+// 	case CMD_CREATE_VISUAL_SHAPE:
+// 		{
+// 			hasStatus = processCreateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CREATE_MULTI_BODY:
+// 		{
+// 			hasStatus = processCreateMultiBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+	
+	
+// 	case CMD_LOAD_SOFT_BODY:
+// 		{
+// 			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CREATE_SENSOR:
+// 		{
+// 			hasStatus = processCreateSensorCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_PROFILE_TIMING:
+// 		{
+// 			hasStatus = processProfileTimingCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
 
 	
-	
-	
-	case CMD_GET_DYNAMICS_INFO:
-		{
-			hasStatus = processGetDynamicsInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-
+// 	case CMD_REQUEST_COLLISION_INFO:
+// 		{
+// 			hasStatus = processRequestCollisionInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
 
 	
 	
-	case CMD_CREATE_RIGID_BODY:
-		{
-			hasStatus = processCreateRigidBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CREATE_BOX_COLLISION_SHAPE:
-		{
-			//for backward compatibility, CMD_CREATE_BOX_COLLISION_SHAPE is the same as CMD_CREATE_RIGID_BODY
-			hasStatus = processCreateRigidBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_PICK_BODY:
-		{
-			hasStatus = processPickBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_MOVE_PICKED_BODY:
-		{
-			hasStatus = processMovePickedBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_REMOVE_PICKING_CONSTRAINT_BODY:
-		{
-			hasStatus = processRemovePickingConstraintCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_REQUEST_AABB_OVERLAP:
-		{
-			hasStatus = processRequestAabbOverlapCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA:
-		{
-			hasStatus = processRequestOpenGLVisualizeCameraCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CONFIGURE_OPENGL_VISUALIZER:
-		{
-			hasStatus = processConfigureOpenGLVisualizerCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
 	
-	case CMD_CALCULATE_INVERSE_DYNAMICS:
-		{
-			hasStatus = processInverseDynamicsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CALCULATE_JACOBIAN:
-		{
-			hasStatus = processCalculateJacobianCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_CALCULATE_MASS_MATRIX:
-		{
-			hasStatus = processCalculateMassMatrixCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_APPLY_EXTERNAL_FORCE:
-		{
-			hasStatus = processApplyExternalForceCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
-			break;
-		}
-	case CMD_REMOVE_BODY:
-	{
-		hasStatus = processRemoveBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_USER_CONSTRAINT:
-	{
-		hasStatus = processCreateUserConstraintCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_CALCULATE_INVERSE_KINEMATICS:
-	{
-		hasStatus = processCalculateInverseKinematicsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_REQUEST_VISUAL_SHAPE_INFO:
-	{
-		hasStatus = processRequestVisualShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_REQUEST_COLLISION_SHAPE_INFO:
-	{
-		hasStatus = processRequestCollisionShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_UPDATE_VISUAL_SHAPE:
-	{
-		hasStatus = processUpdateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_CHANGE_TEXTURE:
-	{
-		hasStatus = processChangeTextureCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_LOAD_TEXTURE:
-	{
-		hasStatus = processLoadTextureCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_RESTORE_STATE:
-	{
-		hasStatus = processRestoreStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
+// 	case CMD_GET_DYNAMICS_INFO:
+// 		{
+// 			hasStatus = processGetDynamicsInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
 
-	case CMD_SAVE_STATE:
-	{
-		hasStatus = processSaveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
 
-	case CMD_LOAD_BULLET:
-	{
-		hasStatus = processLoadBulletCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_SAVE_BULLET:
-	{
-		hasStatus = processSaveBulletCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_LOAD_MJCF:
-	{
-		hasStatus = processLoadMJCFCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
+	
+	
+// 	case CMD_CREATE_RIGID_BODY:
+// 		{
+// 			hasStatus = processCreateRigidBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CREATE_BOX_COLLISION_SHAPE:
+// 		{
+// 			//for backward compatibility, CMD_CREATE_BOX_COLLISION_SHAPE is the same as CMD_CREATE_RIGID_BODY
+// 			hasStatus = processCreateRigidBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_PICK_BODY:
+// 		{
+// 			hasStatus = processPickBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_MOVE_PICKED_BODY:
+// 		{
+// 			hasStatus = processMovePickedBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_REMOVE_PICKING_CONSTRAINT_BODY:
+// 		{
+// 			hasStatus = processRemovePickingConstraintCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_REQUEST_AABB_OVERLAP:
+// 		{
+// 			hasStatus = processRequestAabbOverlapCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA:
+// 		{
+// 			hasStatus = processRequestOpenGLVisualizeCameraCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CONFIGURE_OPENGL_VISUALIZER:
+// 		{
+// 			hasStatus = processConfigureOpenGLVisualizerCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+	
+// 	case CMD_CALCULATE_INVERSE_DYNAMICS:
+// 		{
+// 			hasStatus = processInverseDynamicsCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CALCULATE_JACOBIAN:
+// 		{
+// 			hasStatus = processCalculateJacobianCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_CALCULATE_MASS_MATRIX:
+// 		{
+// 			hasStatus = processCalculateMassMatrixCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_APPLY_EXTERNAL_FORCE:
+// 		{
+// 			hasStatus = processApplyExternalForceCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+// 			break;
+// 		}
+// 	case CMD_REMOVE_BODY:
+// 	{
+// 		hasStatus = processRemoveBodyCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_USER_CONSTRAINT:
+// 	{
+// 		hasStatus = processCreateUserConstraintCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_CALCULATE_INVERSE_KINEMATICS:
+// 	{
+// 		hasStatus = processCalculateInverseKinematicsCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_REQUEST_VISUAL_SHAPE_INFO:
+// 	{
+// 		hasStatus = processRequestVisualShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_REQUEST_COLLISION_SHAPE_INFO:
+// 	{
+// 		hasStatus = processRequestCollisionShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_UPDATE_VISUAL_SHAPE:
+// 	{
+// 		hasStatus = processUpdateVisualShapeCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_CHANGE_TEXTURE:
+// 	{
+// 		hasStatus = processChangeTextureCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_LOAD_TEXTURE:
+// 	{
+// 		hasStatus = processLoadTextureCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_RESTORE_STATE:
+// 	{
+// 		hasStatus = processRestoreStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
 
-	case CMD_REQUEST_USER_DATA:
-	{
-		hasStatus = processRequestUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_ADD_USER_DATA:
-	{
-		hasStatus = processAddUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-	case CMD_REMOVE_USER_DATA:
-	{
-		hasStatus = processRemoveUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
-		break;
-	}
-#endif
+// 	case CMD_SAVE_STATE:
+// 	{
+// 		hasStatus = processSaveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+
+// 	case CMD_LOAD_BULLET:
+// 	{
+// 		hasStatus = processLoadBulletCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_SAVE_BULLET:
+// 	{
+// 		hasStatus = processSaveBulletCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_LOAD_MJCF:
+// 	{
+// 		hasStatus = processLoadMJCFCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+
+// 	case CMD_REQUEST_USER_DATA:
+// 	{
+// 		hasStatus = processRequestUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_ADD_USER_DATA:
+// 	{
+// 		hasStatus = processAddUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// 	case CMD_REMOVE_USER_DATA:
+// 	{
+// 		hasStatus = processRemoveUserDataCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+// 		break;
+// 	}
+// #endif
 
 	default:
 	{   

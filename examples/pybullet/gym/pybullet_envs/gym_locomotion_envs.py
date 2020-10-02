@@ -6,10 +6,11 @@ from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, AntMJC, AntMJC_
 
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
-    def __init__(self, robot, render=False, client=None, isMultiplayer=False):
+    def __init__(self, robot, render=False, client=None, isMultiplayer=False, time_step=0.01):
         # print("WalkerBase::__init__ start")
-        self.timestep = 0.01
-        self.frame_skip = 5
+        self.timestep = time_step
+        collection_rate = 50 # samples per second
+        self.frame_skip = int(1/(collection_rate*self.timestep))
         MJCFBaseBulletEnv.__init__(self, robot, render, client=client, timestep=self.timestep, frame_skip=self.frame_skip)
 
         self.camera_x = 0
@@ -153,19 +154,19 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         self.camera.move_and_look_at(self.camera_x, y-2.0, 1.4, x, y, 1.0)
 
 class HopperBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, time_step=0.01):
         self.robot = Hopper(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
-        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client, time_step=time_step)
 
 class Walker2DBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, time_step=0.01):
         self.robot = Walker2D(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
-        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client, time_step=time_step)
 
 class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, time_step=0.01):
         self.robot = HalfCheetah(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision)
-        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client, time_step=time_step)
 
     def _isDone(self):
         return False
@@ -184,15 +185,15 @@ class AntBulletEnvMJC_physx(WalkerBaseBulletEnv):
 
 
 class AntBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, robot_setup=None, render=False, pos = [0,0,0], isPhysx=False,self_collision=False):
+    def __init__(self, client, robot_setup=None, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, time_step=0.01):
         self.robot = Ant(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision, robot_setup=robot_setup)
-        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client, time_step=time_step)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, robot=None):
+    def __init__(self, client, render=False, pos = [0,0,0], isPhysx=False,self_collision=False, robot=None, time_step=0.01):
         self.robot = Humanoid(basePosition=pos, fixed_base=False, isPhysx=isPhysx, self_collision=self_collision) if robot is None else robot
         # self.robot = Humanoid()
-        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client)
+        WalkerBaseBulletEnv.__init__(self, self.robot, render, client=client, time_step=time_step)
         self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
         self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
 
