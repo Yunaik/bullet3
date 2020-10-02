@@ -67,7 +67,9 @@ class WalkerBaseURDF(URDFBasedRobot):
 
     def calc_state(self):
         j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
-        self.joint_position = j
+        j_names = [j.joint_name for j in self.ordered_joints]
+        # print("J names: ", j_names)
+        self.joint_position = j[0::2]
         # even elements [0::2] position, scaled to -1..+1 between limits
         # odd elements  [1::2] angular speed, scaled to show -1..+1
         self.joint_speeds = j[1::2]
@@ -99,12 +101,15 @@ class WalkerBaseURDF(URDFBasedRobot):
         )
         vx, vy, vz = np.dot(rot_speed, self.robot_body.speed())  # rotate speed back to body point of view
 
-        more = np.array([ z-self.initial_z,
+        more = np.array([ z-self.initial_z, r, p, 
             np.sin(angle_to_target), np.cos(angle_to_target),
             0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
             r, p], dtype=np.float32)
         # print("Feet contact: ", self.feet_contact)
-        return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5)
+        # print("MORE: ", more, "j: ", j)
+
+        # return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5) # foot_contact doesn't work in physx
+        return np.clip( np.concatenate([more] + [j] ), -5, +5)
 
     def calc_potential(self):
         # progress in potential field is speed*dt, typical speed is about 2-3 meter per second, this potential will change 2-3 per frame (not per second),
@@ -124,87 +129,89 @@ class WalkerBaseURDF(URDFBasedRobot):
 class WalkerBase(MJCFBasedRobot):
     def __init__(self,  fn, robot_name, action_dim, obs_dim, power, player_n=0, isPhysx=False):
         MJCFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim, isPhysx=isPhysx)
-        self.power = power
-        self.camera_x = 0
-        self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
-        self.walk_target_x = 1e3  # kilometer away
-        self.walk_target_y = 0
-        self.body_xyz=[0,0,0]
-        self.player_n = player_n
+    #     self.power = power
+    #     self.camera_x = 0
+    #     self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
+    #     self.walk_target_x = 1e3  # kilometer away
+    #     self.walk_target_y = 0
+    #     self.body_xyz=[0,0,0]
+    #     self.player_n = player_n
 
-    def robot_specific_reset(self, bullet_client):
-        self._p = bullet_client
-        for j in self.ordered_joints:
-            j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
+    # def robot_specific_reset(self, bullet_client):
+    #     self._p = bullet_client
+    #     for j in self.ordered_joints:
+    #         j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
 
-        self.feet = [self.parts[f] for f in self.foot_list]
-        self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
-        self.scene.actor_introduce(self)
-        self.initial_z = None
+    #     self.feet = [self.parts[f] for f in self.foot_list]
+    #     self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
+    #     self.scene.actor_introduce(self)
+    #     self.initial_z = None
 
-    def apply_action(self, a):
+    # def apply_action(self, a):
 
-        self.action = a
-        assert (np.isfinite(a).all())
-        for n, j in enumerate(self.ordered_joints):
-            j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
+    #     self.action = a
+    #     assert (np.isfinite(a).all())
+    #     for n, j in enumerate(self.ordered_joints):
+    #         j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
 
-    def calc_state(self):
-        j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
-        # even elements [0::2] position, scaled to -1..+1 between limits
-        # odd elements  [1::2] angular speed, scaled to show -1..+1
-        self.joint_speeds = j[1::2]
-        self.joints_at_limit = np.count_nonzero(np.abs(j[0::2]) > 0.99)
+    # def calc_state(self):
+    #     j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
+    #     # even elements [0::2] position, scaled to -1..+1 between limits
+    #     # odd elements  [1::2] angular speed, scaled to show -1..+1
+    #     self.joint_speeds = j[1::2]
+    #     self.joints_at_limit = np.count_nonzero(np.abs(j[0::2]) > 0.99)
 
-        body_pose = self.robot_body.pose()
-        parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
-        self.body_xyz = (
-        parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2])  # torso z is more informative than mean z
-        self.body_rpy = body_pose.rpy()
-        z = self.body_xyz[2]
-        if self.initial_z == None:
-            self.initial_z = z
-        r, p, yaw = self.body_rpy
-        self.walk_target_theta = np.arctan2(self.walk_target_y - self.body_xyz[1],
-                                            self.walk_target_x - self.body_xyz[0])
-        self.walk_target_dist = np.linalg.norm(
-            [self.walk_target_y - self.body_xyz[1], self.walk_target_x - self.body_xyz[0]])
-        angle_to_target = self.walk_target_theta - yaw
+    #     body_pose = self.robot_body.pose()
+    #     parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
+    #     self.body_xyz = (
+    #     parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2])  # torso z is more informative than mean z
+    #     self.body_rpy = body_pose.rpy()
+    #     z = self.body_xyz[2]
+    #     if self.initial_z == None:
+    #         self.initial_z = z
+    #     r, p, yaw = self.body_rpy
+    #     self.walk_target_theta = np.arctan2(self.walk_target_y - self.body_xyz[1],
+    #                                         self.walk_target_x - self.body_xyz[0])
+    #     self.walk_target_dist = np.linalg.norm(
+    #         [self.walk_target_y - self.body_xyz[1], self.walk_target_x - self.body_xyz[0]])
+    #     angle_to_target = self.walk_target_theta - yaw
 
-        rot_speed = np.array(
-            [[np.cos(-yaw), -np.sin(-yaw), 0],
-             [np.sin(-yaw), np.cos(-yaw), 0],
-             [        0,             0, 1]]
-        )
-        vx, vy, vz = np.dot(rot_speed, self.robot_body.speed())  # rotate speed back to body point of view
+    #     rot_speed = np.array(
+    #         [[np.cos(-yaw), -np.sin(-yaw), 0],
+    #          [np.sin(-yaw), np.cos(-yaw), 0],
+    #          [        0,             0, 1]]
+    #     )
+    #     vx, vy, vz = np.dot(rot_speed, self.robot_body.speed())  # rotate speed back to body point of view
 
-        more = np.array([ z-self.initial_z,
-            np.sin(angle_to_target), np.cos(angle_to_target),
-            0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
-            r, p], dtype=np.float32)
-        return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5)
+    #     more = np.array([ z-self.initial_z,
+    #         np.sin(angle_to_target), np.cos(angle_to_target),
+    #         0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
+    #         r, p], dtype=np.float32)
 
-    def calc_potential(self):
-        # progress in potential field is speed*dt, typical speed is about 2-3 meter per second, this potential will change 2-3 per frame (not per second),
-        # all rewards have rew/frame units and close to 1.0
-        debugmode=0
-        if (debugmode):
-            print("calc_potential: self.walk_target_dist")
-            print(self.walk_target_dist)
-            print("self.scene.dt")
-            print(self.scene.dt)
-            print("self.scene.frame_skip")
-            print(self.scene.frame_skip)
-            print("self.scene.timestep")
-            print(self.scene.timestep)
-        return - self.walk_target_dist / self.scene.dt
+
+    #     return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5)
+
+    # def calc_potential(self):
+    #     # progress in potential field is speed*dt, typical speed is about 2-3 meter per second, this potential will change 2-3 per frame (not per second),
+    #     # all rewards have rew/frame units and close to 1.0
+    #     debugmode=0
+    #     if (debugmode):
+    #         print("calc_potential: self.walk_target_dist")
+    #         print(self.walk_target_dist)
+    #         print("self.scene.dt")
+    #         print(self.scene.dt)
+    #         print("self.scene.frame_skip")
+    #         print(self.scene.frame_skip)
+    #         print("self.scene.timestep")
+    #         print(self.scene.timestep)
+    #     return - self.walk_target_dist / self.scene.dt
 
 
 class Hopper(WalkerBaseURDF):
     foot_list = ["foot"]
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=15, power=0.75, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "hopper.urdf", "torso", action_dim=3, obs_dim=13, power=0.75, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "thigh_joint":   [-150, 0],
@@ -218,7 +225,7 @@ class Walker2D(WalkerBaseURDF):
     foot_list = ["foot", "foot_left"]
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=22, power=0.40, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=20, power=0.40, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "thigh_joint":        [  -150, 0],
@@ -240,7 +247,7 @@ class HalfCheetah(WalkerBaseURDF):
     foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=26, power=0.9, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "half_cheetah.urdf", "torso", action_dim=6, obs_dim=24, power=0.9, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "bthigh":    [-.52  * 180/3.14, 180/3.14* 1.05],
@@ -269,7 +276,7 @@ class AntMJC(WalkerBase):
   foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
   def __init__(self):
-    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5)
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=26, power=2.5)
 
   def alive_bonus(self, z, pitch):
     return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
@@ -278,7 +285,7 @@ class AntMJC_physx(WalkerBase):
   foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
   def __init__(self, isPhysx=False,self_collision=False):
-    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=2.5, isPhysx=isPhysx)
+    WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=26, power=2.5, isPhysx=isPhysx)
 
   def alive_bonus(self, z, pitch):
     return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
@@ -288,7 +295,7 @@ class Ant(WalkerBaseURDF):
     foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False, robot_setup=None):
-        WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=28, power=2.5, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self, "ant_torso.urdf", "torso", action_dim=8, obs_dim=26, power=2.5, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx, robot_setup=robot_setup)
         self.joint_limits = {"hip_1": [-40, 40],
                             "ankle_1": [30 ,100],
@@ -310,7 +317,7 @@ class Humanoid(WalkerBaseURDF):
     foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=44, power=0.41, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self,  'humanoid_torso.urdf', 'torso', action_dim=17, obs_dim=42, power=0.41, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "right_knee":      [-160  , -2],

@@ -37,10 +37,9 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,0)
 
-        # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(self._p,
-        #     self.stadium_scene.ground_plane_mjcf)
+        # self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(self._p, )
         # self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
-        #                        self.foot_ground_object_names])
+        #                         self.foot_ground_object_names])
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
         # if (self.stateId<0):
             # self.stateId=self._p.saveState()
@@ -128,21 +127,22 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
     def checkFall(self):
         done = self._isDone()
+
+        # check for simulation error where the robot penetrates the ground
+
+        
+        # parts_z = np.array([p.pose().xyz()[2] for p in self.robot.parts.values()]).flatten()
+        # print("parts z: ", parts_z)
+        # if np.any(np.less(parts_z, 0)):
+        #     done = True
+        #     print("PARTS BELOW: ", parts_z)
+
         if not np.isfinite(self.state).all():
             print("~INF~", self.state)
             done = True
         return done
     def get_observation(self):
 
-        # for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
-            # contact_ids = set((x[2], x[4]) for x in f.contact_list())
-            #print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
-            # if (self.ground_ids & contact_ids):
-                            # see Issue 63: https://github.com/openai/roboschool/issues/63
-                # feet_collision_cost += self.foot_collision_cost
-                # self.robot.feet_contact[i] = 1.0
-            # else:
-                # self.robot.feet_contact[i] = 0.0
         self.state = self.robot.calc_state()
         self._alive = float(self.robot.alive_bonus(self.state[0]+self.robot.initial_z, self.robot.body_rpy[1]))   # state[0] is body height above ground, body_rpy[1] is pitch
         # print("ALive: ", self._alive)

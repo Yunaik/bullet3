@@ -284,6 +284,8 @@ class BodyPart:
         return np.array([vx, vy, vz])
 
     def current_position(self):
+        # if self.get_pose()[2] < 0:
+        #     print("BELOW")
         return self.get_pose()[:3]
 
     def current_orientation(self):
