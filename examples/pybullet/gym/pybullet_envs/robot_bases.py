@@ -93,6 +93,7 @@ class XmlBasedRobot:
 
                 if joint_name[:6] == "ignore":
                     Joint(self._p, joint_name, bodies, i, j, isPhysx=self.isPhysx).disable_motor()
+                    # Joint(self._p, joint_name, bodies, i, j, isPhysx=self.isPhysx)
                     continue
 
                 if joint_name[:8] != "jointfix":
@@ -173,17 +174,17 @@ class URDFBasedRobot(XmlBasedRobot):
         # print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
         if self.robot_setup is None:
             if self.robot_model is None:
-                if self.self_collision:
-                    self.robot_model = self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
+                # if self.self_collision:
+                #     self.robot_model = self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
+                #                                     basePosition=self.basePosition,
+                #                                     baseOrientation=self.baseOrientation,
+                #                                     useFixedBase=self.fixed_base,
+                #                                     flags=pybullet.URDF_USE_SELF_COLLISION)
+                # else:
+                self.robot_model =  self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
                                                     basePosition=self.basePosition,
                                                     baseOrientation=self.baseOrientation,
-                                                    useFixedBase=self.fixed_base,
-                                                    flags=pybullet.URDF_USE_SELF_COLLISION)
-                else:
-                    self.robot_model =  self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
-                                                        basePosition=self.basePosition,
-                                                        baseOrientation=self.baseOrientation,
-                                                        useFixedBase=self.fixed_base)
+                                                    useFixedBase=self.fixed_base)
                 self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_model)
                 # print("Generated")
             else:
@@ -257,6 +258,8 @@ class Pose_Helper: # dummy class to comply to original interface
 class BodyPart:
     def __init__(self, bullet_client, body_name, bodies, bodyIndex, bodyPartIndex):
         self.bodies = bodies
+        self.body_name = body_name
+        # print("MADE BODY: %s" % body_name)
         self._p = bullet_client
         self.bodyIndex = bodyIndex
         self.bodyPartIndex = bodyPartIndex

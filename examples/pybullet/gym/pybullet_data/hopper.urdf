@@ -1,33 +1,5 @@
 <?xml version="0.0" ?>
 <robot name="hopper">
-    <link name="link0_1">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_2">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_3">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_4">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
     <link name="torso">
         <inertial>
             <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 1.25000"/>
@@ -100,6 +72,34 @@
                 <capsule length="0.39000" radius="0.06000"/>
             </geometry>
         </collision>
+    </link>
+    <link name="link0_1">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
+    <link name="link0_2">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
+    <link name="link0_3">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
+    <link name="link0_4">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
     </link>
     <joint name="ignore1" type="prismatic">
         <parent link="link0_1"/>

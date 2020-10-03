@@ -32,6 +32,7 @@ class WalkerBaseURDF(URDFBasedRobot):
         limit_high = []
         for joint in self.ordered_joints:
             name = joint.joint_name
+            print("Name: %s" % name)
             limit_low.append(self.joint_limits[name][0])
             limit_high.append(self.joint_limits[name][1])
 
@@ -70,6 +71,16 @@ class WalkerBaseURDF(URDFBasedRobot):
         # print("Action applied: ", a)
 
     def calc_state(self):
+
+        # print("PARTS POS: ", np.array([p.pose().xyz() for p in self.parts.values()]).flatten())
+        # for key in self.parts.keys():
+        #     print("%s: ", (key, self.parts[key].get_position()))
+        # for part in self.parts:
+            # print(part)
+            # try:
+            #     print(part.get_position())
+            # except:
+            #     print("Failed")
         j = np.array([j.current_relative_position() for j in self.ordered_joints], dtype=np.float32).flatten()
         j_names = [j.joint_name for j in self.ordered_joints]
         # print("J names: ", j_names)
