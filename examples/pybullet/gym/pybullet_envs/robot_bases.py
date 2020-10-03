@@ -187,7 +187,7 @@ class URDFBasedRobot(XmlBasedRobot):
                 self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,self.robot_model)
                 # print("Generated")
             else:
-                self._p.resetBasePositionAndOrientation(self.robot_model,self.basePosition, self.baseOrientation)
+                self._p.resetBasePositionAndOrientation(self.robot_model, self.basePosition, self.baseOrientation)
                 # pass
                 # print("Pass")
         else:

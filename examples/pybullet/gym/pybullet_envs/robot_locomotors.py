@@ -14,6 +14,7 @@ class WalkerBaseURDF(URDFBasedRobot):
                                 basePosition=basePosition, baseOrientation=baseOrientation, 
                                 self_collision=self_collision, fixed_base=fixed_base, 
                                 isPhysx=isPhysx, robot_setup=robot_setup)
+        self.isPhysx = isPhysx
         self.power = power
         self.camera_x = 0
         self.start_pos_x, self.start_pos_y, self.start_pos_z = 0, 0, 0
@@ -23,6 +24,7 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.player_n = player_n
         self.joint_limits = {}
         self.random_init = random_init
+        # self.reading_pose_from_pybullet=False
     def robot_specific_reset(self, bullet_client):
         # print("RESET")
         self._p = bullet_client
@@ -77,14 +79,24 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.joint_speeds = j[1::2]
         self.joints_at_limit = np.count_nonzero(np.abs(j[0::2]) > 0.99)
 
-        body_pose = self.robot_body.pose()
-        # print("Body pos: ", body_pose)
-        parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
-        self.body_xyz = (
-        parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2])  # torso z is more informative than mean z
-        self.body_rpy = body_pose.rpy()
-        # print("body rpy: ", self.body_rpy)
-        # print("Body xyz: ", self.body_xyz)
+        if self.isPhysx:
+            self.body_xyz, body_quat = self._p.getBasePositionAndOrientation(self.robot_model)
+            self.body_rpy = self._p.getEulerFromQuaternion(body_quat)
+            # print("IN HERE")
+        else:
+            body_pose = self.robot_body.pose()
+            # print("Body pos: ", body_pose)
+            parts_xyz = np.array([p.pose().xyz() for p in self.parts.values()]).flatten()
+            self.body_xyz = (
+            parts_xyz[0::3].mean(), parts_xyz[1::3].mean(), body_pose.xyz()[2])  # torso z is more informative than mean z
+            self.body_rpy = body_pose.rpy()
+        
+        # if (sum(self.body_xyz) + sum(self.body_rpy) < 1e-3) or self.reading_pose_from_pybullet:
+        
+        # self.reading_pose_from_pybullet = True
+        # assert sum(self.body_xyz) + sum(self.body_rpy) > 1e-3
+        print("Body xyz: ", self.body_xyz)
+        print("body rpy: ", self.body_rpy)
 
         z = self.body_xyz[2]
         if self.initial_z == None:
@@ -94,12 +106,13 @@ class WalkerBaseURDF(URDFBasedRobot):
                                             self.walk_target_x - self.body_xyz[0])
         self.walk_target_dist = np.linalg.norm(
             [self.walk_target_y - self.body_xyz[1], self.walk_target_x - self.body_xyz[0]])
+        # print("Target x: %.2f, is: %.2f, Target y: %.2f, is: %.2f" % (self.walk_target_x, self.body_xyz[0], self.walk_target_y, self.body_xyz[1]))
         angle_to_target = self.walk_target_theta - yaw
-
+        # print("Angle to target: ", angle_to_target)
         rot_speed = np.array(
             [[np.cos(-yaw), -np.sin(-yaw), 0],
-             [np.sin(-yaw), np.cos(-yaw), 0],
-             [        0,             0, 1]]
+            [np.sin(-yaw), np.cos(-yaw), 0],
+            [        0,             0, 1]]
         )
         vx, vy, vz = np.dot(rot_speed, self.robot_body.speed())  # rotate speed back to body point of view
 
@@ -126,6 +139,7 @@ class WalkerBaseURDF(URDFBasedRobot):
             print(self.scene.frame_skip)
             print("self.scene.timestep")
             print(self.scene.timestep)
+            print("Potential: ", - self.walk_target_dist / self.scene.dt)
         return - self.walk_target_dist / self.scene.dt
 
 class WalkerBase(MJCFBasedRobot):

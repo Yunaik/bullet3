@@ -19,7 +19,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         self.stateId=-1
         self.isMultiplayer=isMultiplayer
         # self._alive = True
-
+        self.printed_warning = False
     def create_scene(self, bullet_client):
         if self.isMultiplayer:
             self.stadium_scene = SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=self.timestep, frame_skip=self.frame_skip)
@@ -28,6 +28,8 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         return self.stadium_scene
 
     def reset(self):
+        # print("Reset")
+        self.printed_warning = False
 
         # if (self.stateId>=0):
             #print("restoreState self.stateId:",self.stateId)
@@ -68,24 +70,30 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
     joints_at_limit_cost = -0.1    # discourage stuck joints
 
     def step(self, a):
-        print("DONT USE")
-        # if not self.scene.multiplayer:  # if multiplayer, action first applied to all robots, then global step() called, then _step() for all robots with the same actions
-        #     self.robot.apply_action(a)
-        #     self.scene.global_step()
+        if not self.printed_warning:
+            self.printed_warning = True
 
-        # # state = self.robot.calc_state()  # also calculates self.joints_at_limit
-        # self.state = self.get_observation()  # also calculates self.joints_at_limit
-        # done = self.checkFall()
-        # self.rewards = self.getReward()
+            print("DONT USE FOR TRAINING. This should warning only appear at testing manually (not in evaluate env)\nStep is directly done in environment, not the parallel version")
+        clipped_action = np.clip(a, self.action_space.low, self.action_space.high)
+        self.robot.apply_action(clipped_action)
+
+        for _ in range(self.frame_skip):
+            self._p.stepSimulation()
+
+        self.state = self.get_observation()  # also calculates self.joints_at_limit
+        done = self.checkFall()
+        reward = self.getReward()
         # self.HUD(state, a, done)
-        return -1
-        # return self.state, sum(self.rewards), bool(done), {}
+        # return -1
+        return self.state, reward, done, {}
 
     def getReward(self):
         potential_old = self.potential
         self.potential = self.robot.calc_potential()
         progress = float(self.potential - potential_old)
-
+        # print("Progress: ", progress)
+        # print("Potential: ", self.potential)
+        # print("Old Potential: ", potential_old)
         feet_collision_cost = 0.0
 
 
