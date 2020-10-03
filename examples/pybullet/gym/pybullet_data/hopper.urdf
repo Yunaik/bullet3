@@ -13,6 +13,27 @@
             </geometry>
         </collision>
     </link>
+    <link name="link0_1">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
+    <link name="link0_2">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
+    <link name="link0_3">
+        <inertial>
+            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
+            <mass value="0.00000"/>
+            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
+        </inertial>
+    </link>
     <link name="link0_6">
         <inertial>
             <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
@@ -73,63 +94,28 @@
             </geometry>
         </collision>
     </link>
-    <link name="link0_1">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_2">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_3">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
-    <link name="link0_4">
-        <inertial>
-            <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-            <mass value="0.00000"/>
-            <inertia ixx="0.00000" ixy="0" ixz="0" iyy="0.00000" iyz="0" izz="0.00000"/>
-        </inertial>
-    </link>
     <joint name="ignore1" type="prismatic">
-        <parent link="link0_1"/>
-        <child link="link0_2"/>
+        <parent link="torso"/>
+        <child link="link0_1"/>
         <limit effort="1000.0" lower="-0.50000" upper="0.50000" velocity="0.5"/>
         <dynamics damping="1.0" friction="0.0001"/>
         <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
         <axis xyz="1.00000 0.00000 0.00000"/>
     </joint>
     <joint name="ignore2" type="prismatic">
-        <parent link="link0_2"/>
-        <child link="link0_3"/>
+        <parent link="torso"/>
+        <child link="link0_2"/>
         <limit effort="1000.0" lower="-0.50000" upper="0.50000" velocity="0.5"/>
         <dynamics damping="1.0" friction="0.0001"/>
         <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
         <axis xyz="0.00000 0.00000 1.00000"/>
     </joint>
     <joint name="ignore3" type="continuous">
-        <parent link="link0_3"/>
-        <child link="link0_4"/>
+        <parent link="torso"/>
+        <child link="link0_3"/>
         <dynamics damping="1.0" friction="0.0001"/>
         <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
         <axis xyz="0.00000 1.00000 0.00000"/>
-    </joint>
-    <joint name="jointfix_3_4" type="fixed">
-        <parent link="link0_4"/>
-        <child link="torso"/>
-        <dynamics damping="1.0" friction="0.0001"/>
-        <origin rpy="0.00000 -0.00000 0.00000" xyz="0.00000 0.00000 0.00000"/>
-        <axis xyz="0.00000 0.00000 0.00000"/>
     </joint>
     <joint name="thigh_joint" type="continuous">
         <parent link="torso"/>

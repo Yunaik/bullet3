@@ -32,7 +32,7 @@ class WalkerBaseURDF(URDFBasedRobot):
         limit_high = []
         for joint in self.ordered_joints:
             name = joint.joint_name
-            print("Name: %s" % name)
+            # print("Name: %s" % name)
             limit_low.append(self.joint_limits[name][0])
             limit_high.append(self.joint_limits[name][1])
 
@@ -106,8 +106,8 @@ class WalkerBaseURDF(URDFBasedRobot):
         
         # self.reading_pose_from_pybullet = True
         # assert sum(self.body_xyz) + sum(self.body_rpy) > 1e-3
-        print("Body xyz: ", self.body_xyz)
-        print("body rpy: ", self.body_rpy)
+        # print("Body xyz: ", self.body_xyz)
+        # print("body rpy: ", self.body_rpy)
 
         z = self.body_xyz[2]
         if self.initial_z == None:

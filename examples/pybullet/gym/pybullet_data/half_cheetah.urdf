@@ -161,6 +161,7 @@
             </geometry>
         </collision>
     </link>
+
     <joint name="ignorex" type="prismatic">
         <parent link="torso"/>
         <child link="link1"/>
