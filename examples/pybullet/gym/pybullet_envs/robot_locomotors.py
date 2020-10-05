@@ -245,6 +245,9 @@ class Hopper(WalkerBaseURDF):
             "leg_joint"  :   [-150, 0],
             "foot_joint" :   [-45 ,45],}
     def alive_bonus(self, z, pitch):
+        # print("PITCH: ", pitch)
+        # print("z: ", z)
+        # print("ALIVE: ", (z > 0.8 and abs(pitch) < 1.0))
         return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
 
