@@ -1747,11 +1747,11 @@ bool PhysXServerCommandProcessor::processCommand(const struct SharedMemoryComman
 
 	default:
 	{   
-        printf("\nIf command type is %d, it's CMD_CONFIGURE_OPENGL_VISUALIZER. Safely ignore as it's not implemented. Otherwise check in PhysXServerCommandProcessor.cpp whether the command was commented out in #if 0\n", CMD_CONFIGURE_OPENGL_VISUALIZER);
+        // printf("\nIf command type is %d, it's CMD_CONFIGURE_OPENGL_VISUALIZER. Safely ignore as it's not implemented. Otherwise check in PhysXServerCommandProcessor.cpp whether the command was commented out in #if 0\n", CMD_CONFIGURE_OPENGL_VISUALIZER);
         // printf("CMD_STATE_LOGGING: %d", CMD_STATE_LOGGING);
         
 		BT_PROFILE("CMD_UNKNOWN");
-		printf("In physx: Unknown command encountered: %d", clientCmd.m_type);
+		// printf("In physx: Unknown command encountered: %d", clientCmd.m_type);
 		SharedMemoryStatus& serverCmd = serverStatusOut;
 		serverCmd.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
 		hasStatus = true;
