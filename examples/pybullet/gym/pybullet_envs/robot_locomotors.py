@@ -26,13 +26,11 @@ class WalkerBaseURDF(URDFBasedRobot):
         self.random_init = random_init
         # self.reading_pose_from_pybullet=False
     def robot_specific_reset(self, bullet_client):
-        # print("RESET")
         self._p = bullet_client
         limit_low = []
         limit_high = []
         for joint in self.ordered_joints:
             name = joint.joint_name
-            # print("Name: %s" % name)
             limit_low.append(self.joint_limits[name][0])
             limit_high.append(self.joint_limits[name][1])
 
@@ -42,10 +40,7 @@ class WalkerBaseURDF(URDFBasedRobot):
         for idx, j in enumerate(self.ordered_joints):
             j.reset_current_position(start_config[idx], 0)
             j.maxForce = self.power * j.power_coef
-            # print("Power coeff: ", j.power_coef)
             j.set_PD_gains(j.maxForce)
-            # print("Max force: ", j.maxForce)
-            # print("Joint name: %s" % j.joint_name)
             if self.joint_limits:
                 j.lowerLimit = self.joint_limits[j.joint_name][0]*3.14/180.
                 j.upperLimit = self.joint_limits[j.joint_name][1]*3.14/180.
@@ -53,6 +48,7 @@ class WalkerBaseURDF(URDFBasedRobot):
 
         self.feet = [self.parts[f] for f in self.foot_list]
         self.feet_contact = np.array([0.0 for f in self.foot_list], dtype=np.float32)
+
         self.scene.actor_introduce(self)
         self.initial_z = None
 

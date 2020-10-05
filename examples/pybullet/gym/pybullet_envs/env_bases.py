@@ -49,7 +49,6 @@ class MJCFBaseBulletEnv(gym.Env):
         return [seed]
 
     def reset(self):
-        # print("HERE1")
         if (self.physicsClientId<0):
             print("OVERWRITING BULLETCLIENT AS BC wasn't passed")
             self.ownsPhysicsClient = True
@@ -72,20 +71,15 @@ class MJCFBaseBulletEnv(gym.Env):
             # print("Scene restart")
             self.scene.episode_restart(self._p)
 
-        # print("HERE2")
 
         self.robot.scene = self.scene
-        # print("HERE3")
 
         self.frame = 0
         self.done = 0
         self.reward = 0
         dump = 0
-        # print("HERE4")
-        # print("Robot resetting")
         # print("Robot parts before rest: ", self.robot.parts)
         s = self.robot.reset(self._p)
-        # print("HERE5")
 
         self.potential = self.robot.calc_potential()
         return s

@@ -34,7 +34,6 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # if (self.stateId>=0):
             #print("restoreState self.stateId:",self.stateId)
             # self._p.restoreState(self.stateId)
-
         r = MJCFBaseBulletEnv.reset(self)
 
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,0)
@@ -46,7 +45,6 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
         # if (self.stateId<0):
             # self.stateId=self._p.saveState()
             #print("saving state self.stateId:",self.stateId)
-        # print("COol3")
 
 
         return r
