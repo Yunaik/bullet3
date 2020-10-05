@@ -252,7 +252,7 @@ class Walker2D(WalkerBaseURDF):
     foot_list = ["foot", "foot_left"]
 
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], player_n=0, fixed_base=False, isPhysx=False,self_collision=False):
-        WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=20, power=0.40, self_collision=self_collision, 
+        WalkerBaseURDF.__init__(self,  "walker2d.urdf", "torso", action_dim=6, obs_dim=20, power=0.80, self_collision=self_collision, 
                             basePosition=basePosition, baseOrientation=baseOrientation, fixed_base=fixed_base, isPhysx=isPhysx)
         self.joint_limits = {
             "thigh_joint":        [  -150, 0],

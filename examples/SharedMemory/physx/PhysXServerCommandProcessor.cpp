@@ -876,7 +876,7 @@ bool PhysXServerCommandProcessor::processSendDesiredStateCommand(const struct Sh
 //							physx::PxArticulationDriveType::Enum driveType = physx::PxArticulationDriveType::eACCELERATION;
 							joint->setDriveTarget(physx::PxArticulationAxis::eTWIST, desiredPosition);
 							joint->setDrive(physx::PxArticulationAxis::eTWIST, stiffness, damping, forceLimit,driveType);
-//							printf("anymal debug 2 : pos %f,force %f, stiffness %f, damping %f \n ", desiredPosition, forceLimit,stiffness, damping);
+							// printf("Valkyrie debug 2 : pos %f,force %f, stiffness %f, damping %f \n ", desiredPosition, forceLimit,stiffness, damping);
 						}
 					}
 
