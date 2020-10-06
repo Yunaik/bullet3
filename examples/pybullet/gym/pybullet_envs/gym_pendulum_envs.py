@@ -7,13 +7,14 @@ import pybullet
 import os, sys
 
 class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
-    def __init__(self, client,render=False, pos = [0,0,0], isPhysx=False):
+    def __init__(self, client,render=False, pos = [0,0,0], isPhysx=False, time_step=0.01):
         # print("Correct version. Render: ", render)
         self._p = client
-        # self.timestep = timestep
-        # self.frame_skip = frame_skip
+        self.timestep = time_step
+        collection_rate = 50
+        self.frame_skip = int(1/(collection_rate*self.timestep))
         self.robot = InvertedPendulum(basePosition=pos, isPhysx=isPhysx)
-        MJCFBaseBulletEnv.__init__(self, self.robot, client=client, render=render)
+        MJCFBaseBulletEnv.__init__(self, self.robot, client=client, render=render, timestep=self.timestep, frame_skip=self.frame_skip)
         self.timestep = 0.01
         self.frame_skip = 5
 

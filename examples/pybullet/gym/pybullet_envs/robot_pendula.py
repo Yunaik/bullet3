@@ -1,6 +1,7 @@
 from robot_bases import MJCFBasedRobot, URDFBasedRobot
 import numpy as np
 import copy
+import gym
 class InvertedPendulum(URDFBasedRobot):
     swingup = False
     def __init__(self, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], self_collision=False, fixed_base=False, isPhysx=False):
@@ -9,21 +10,22 @@ class InvertedPendulum(URDFBasedRobot):
 
 
         self.joint_limits = {
-            "hinge": [-90, 90], 
+            "slider": [-0.5, 0.5], 
         }
 
 
     def robot_specific_reset(self, bullet_client):
         self._p = bullet_client
         
-        self.pole = self.parts["pole"]
+        self.pole   = self.parts["pole"]
         self.slider = self.jdict["slider"]
-        # print("Jdict: ", self.jdict)
         self.j1 = self.jdict["hinge"]
         u = self.np_random.uniform(low=-.1, high=.1)
         self.j1.reset_current_position( u if not self.swingup else 3.1415+u , 0)
-        self.j1.set_motor_torque(0)
+        # self.j1.set_motor_torque(0)
 
+        self.action_space = gym.spaces.Box(np.array([-0.5]), np.array([0.5]))
+        print("SLIDER: ", self.slider)
         # print("Slider: ", self.slider)
         # print("Body: ", self.robot_body)
         # for key in self.parts.keys():
@@ -41,11 +43,15 @@ class InvertedPendulum(URDFBasedRobot):
         if not np.isfinite(a).all():
             print("a is inf")
             a[0] = 0
-        self.slider.set_motor_torque(  100*float(np.clip(a[0], -1, +1)) )
+        # self.slider.set_motor_torque(  100*float(np.clip(a[0], -1, +1)) )
+        self.slider.set_velocity(float(np.clip(a[0], -0.5, 0.5)) )
+        # self.slider.set_position(float(np.clip(a[0], -0.5, 0.5)) )
 
     def calc_state(self):
         self.theta, theta_dot = self.j1.current_position()
+        # print("theta: ", self.theta, ", theta_dot: ", theta_dot)
         x, vx = self.slider.current_position()
+        # print("X: ", x, ", vx: ", vx)
         assert( np.isfinite(x) )
 
         if not np.isfinite(x):
